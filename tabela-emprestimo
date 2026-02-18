@@ -1,0 +1,6 @@
+id_livro
+data_emprestimo
+data_devolucao
+devolvido
+qtd_renovacao
+limite_renovacao
