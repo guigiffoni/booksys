@@ -1,0 +1,5 @@
+ID id
+STRING nome
+STRING data_nascimento
+STRING nacionalidade
+INT[] id_livros

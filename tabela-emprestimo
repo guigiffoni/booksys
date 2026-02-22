@@ -1,6 +1,8 @@
-id_livro
-data_emprestimo
-data_devolucao
-devolvido
-qtd_renovacao
-limite_renovacao
+INT id
+INT id_livro
+INT id_usuario
+STRING data_emprestimo
+STRING data_devolucao
+BOOL devolvido
+INT qtd_renovacao
+INT limite_renovacao

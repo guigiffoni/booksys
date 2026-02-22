@@ -1,6 +1,8 @@
-id
-nome
-genero
-data_nascimento
-nivel_permissao
-debitos OU tempo_bloqueado
+INT id
+STRING nome
+STRING genero
+STRING data_nascimento
+INT nivel_permissao
+INT dias_bloqueado
+STRING email
+STRING senha (criptografia)

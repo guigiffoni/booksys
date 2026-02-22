@@ -1,9 +1,8 @@
-id
-nome
-data_publicacao
-gênero
-sinopse
-ISBN
-paginas
-classificacao_indicativa
-quantidade
+INT id
+INT[] id_autores
+STRING nome
+STRING data_publicacao
+STRING genero
+STRING ISBN
+INT paginas
+INT quantidade
