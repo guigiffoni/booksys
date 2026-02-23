@@ -1,5 +1,4 @@
-ID id
+INT id
 STRING nome
-STRING data_nascimento
+INT data_nascimento (AAAAMMDD)
 STRING nacionalidade
-INT[] id_livros

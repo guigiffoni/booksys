@@ -1,8 +1,7 @@
 INT id
-INT[] id_autores
 STRING nome
-STRING data_publicacao
+INT data_publicacao (AAAAMMDD)
 STRING genero
-STRING ISBN
-INT paginas
+CHAR[20] ISBN
 INT quantidade
+STRING[] categorias
