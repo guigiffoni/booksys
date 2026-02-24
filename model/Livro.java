@@ -22,22 +22,46 @@ public class Livro {
     }
 
     // getters e setters
-    public int getId(){return this.id;}
-    public void setId(int id){this.id = id;}
+    public int getId() {
+        return this.id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getTitulo(){return this.titulo;}
-    public void setTitulo(String titulo){this.titulo = titulo;}
+    public String getTitulo() {
+        return this.titulo;
+    }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public int getAno_publicacao(){return this.anoPublicacao;}
-    public void setAno_publicacao(int ano_publicacao){this.anoPublicacao = ano_publicacao;}
+    public int getAnoPublicacao() {
+        return this.anoPublicacao;
+    }
+    public void setAnoPublicacao(int anoPublicacao) {
+        this.anoPublicacao = anoPublicacao;
+    }
 
-    public String getISBN(){return this.ISBN;}
-    public void setISBN(String ISBN){this.ISBN = ISBN;}
+    public String getISBN() {
+        return this.ISBN;
+    }
+    public void setISBN(String ISBN) {
+        this.ISBN = ISBN;
+    }
 
-    public String[] getCategorias(){return this.categorias;}
-    public void setCategorias(String[] categorias){this.categorias = categorias;}
+    public String[] getCategorias() {
+        return this.categorias;
+    }
+    public void setCategorias(String[] categorias) {
+        this.categorias = categorias;
+    }
 
-    public int getQuantidade(){return this.quantidade;}
-    public void setQuantidade(int quantidade){this.quantidade = quantidade;}
+    public int getQuantidade() {
+        return this.quantidade;
+    }
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
 
 }

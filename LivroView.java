@@ -1,4 +1,4 @@
-package view;
+
 
 import model.Livro;
 import controller.LivroController;
@@ -56,7 +56,7 @@ public class LivroView {
         List<Livro> livros = controller.listarLivros();
         for(Livro l : livros){
             String categorias = String.join(", ", l.getCategorias());
-            System.out.println("ID: " + l.getId() + " | Titulo: " + l.getTitulo() + " | Ano de publicacao: " + l.getAno_publicacao() + " | ISBN: " + l.getISBN() + " | Quantidade de exemplares: " + l.getQuantidade() + " | Categorias: " + categorias);
+            System.out.println("ID: " + l.getId() + " | Titulo: " + l.getTitulo() + " | Ano de publicacao: " + l.getAnoPublicacao() + " | ISBN: " + l.getISBN() + " | Quantidade de exemplares: " + l.getQuantidade() + " | Categorias: " + categorias);
         }
     }
 

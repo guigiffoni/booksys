@@ -108,7 +108,7 @@ public class LivroDAO {
         String dados = ""; 
         dados += tamMetadado(String.valueOf(livro.getId()));
         dados += tamMetadado(livro.getTitulo());
-        dados += tamMetadado(String.valueOf(livro.getAno_publicacao()));
+        dados += tamMetadado(String.valueOf(livro.getAnoPublicacao()));
         dados += tamMetadado(livro.getISBN());
         dados += tamMetadado(categorias);
         dados += tamMetadado(String.valueOf(livro.getQuantidade()));
@@ -136,7 +136,7 @@ public class LivroDAO {
 
         livro.setId(Integer.parseInt(idStr));
         livro.setTitulo(titulo);
-        livro.setAno_publicacao(Integer.parseInt(anoStr));
+        livro.setAnoPublicacao(Integer.parseInt(anoStr));
         livro.setISBN(isbn);
         livro.setCategorias(categoriasStr.split(","));
         livro.setQuantidade(Integer.parseInt(quantidadeStr));
