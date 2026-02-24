@@ -1,6 +1,6 @@
 INT id
-STRING nome
-INT data_publicacao (AAAAMMDD)
+STRING titulo
+INT ano_publicacao (AAAA)
 STRING genero
 CHAR[20] ISBN
 INT quantidade

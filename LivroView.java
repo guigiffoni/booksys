@@ -1,68 +1,107 @@
-import model.Livro;
-import controller.LivroController;
 import java.util.Scanner;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.io.IOException;
 import java.util.List;
 
 public class LivroView {
     private static LivroController controller = new LivroController();
     private static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        int opcao = 0;
+    public void printaMenuInicial() {
+        System.out.println("---- MENU ---");
+        System.out.println("1. Cadastrar Livro");
+        System.out.println("2. Listar Livros");
+        System.out.println("3. Atualizar Livro");
+        System.out.println("4. Remover Livro");
+        System.out.println("0. Sair");
 
-        do {
-            System.out.println("---- MENU ---");
-            System.out.println("1. Cadastrar Livro");
-            System.out.println("2. Listar Livros");
-            System.out.println("3. Atualizar Livro");
-            System.out.println("4. Remover Livro");
-            System.out.println("0. Sair");
-            System.out.print("Escolha uma opcão: ");
-
-            opcao = Integer.parseInt(scanner.nextLine());
-
-            switch (opcao) {
-                case 1:
-                    cadastrarLivro();
-                    break;
-                case 2:
-                    listarLivros();
-                    break;
-                case 3:
-                    atualizarLivro();
-                    break;
-                case 4:
-                    removerLivro();
-                    break;
-                case 0:
-                    System.out.println("Saindo...");
-                    break;
-                default:
-                    System.out.println("Opcao invalida!");
-                    break;
-
-            }
-        } while (opcao != 0);
+        System.out.print("Escolha uma opcão: ");
     }
 
-    public static void cadastrarLivro() {
-        System.out.print("Título: ");
-        String titulo = scanner.nextLine();
+    public String getTitulo() {
+        String titulo;
+        
+        while (true) {
+            System.out.print("Título: ");
+            titulo = scanner.nextLine();
 
-        System.out.print("Ano de publicacao (AAAA): ");
-        int ano = Integer.parseInt(scanner.nextLine());
+            if (titulo.isBlank()) {
+                System.out.println("Título não pode ser vazio!");
+                continue;
+            }
 
-        System.out.print("ISBN: ");
-        String isbn = scanner.nextLine();
+            return titulo;
+        }
+    }
 
-        System.out.print("Categorias (separadas por vírgula): ");
-        String[] categorias = scanner.nextLine().split(",");
+    public int getAnoPublicacao() {
+        String anoPublicacao;
 
-        System.out.print("Quantidade de exemplares: ");
-        int quantidade = Integer.parseInt(scanner.nextLine());
+        while (true) {
+            System.out.println("Ano de Publicação: ");
+            anoPublicacao = scanner.nextLine();
 
-        controller.cadastrarLivro(titulo, ano, isbn, categorias, quantidade);
-        System.out.println("Livro cadastrado com sucesso!");
+            try {
+                return Integer.parseInt(anoPublicacao);
+            } catch (Exception e) {
+                System.out.println("Digite um número inteiro");
+            }
+        }
+    }
+
+    public String getIsbn() {
+        String isbn;
+
+        while (true) {
+            System.out.println("ISBN: ");
+            isbn = scanner.nextLine();
+
+            if (isbn.length() < 13) {
+                System.out.println("ISBN deve conter 13 dígitos");
+                continue;
+            }
+
+            return isbn;
+        }
+    }
+
+    public String[] getCategorias() {
+        String[] categorias;
+
+        while (true) {
+            System.out.println("Categorias (separadas por vírgula): ");
+            categorias = scanner.nextLine().split(",\s*");
+
+            if (categorias.length == 0) {
+                System.out.println("É necessário ter ao menos uma categoria");
+                continue;
+            }
+
+            return categorias;
+        }
+    }
+
+    public int getQuantidade() {
+        String quantidade;
+        int exemplares;
+
+        while (true) {
+            System.out.println("Exemplares: ");
+            quantidade = scanner.nextLine();
+
+            try {
+                exemplares = Integer.parseInt(quantidade);
+
+                if (exemplares > 0) {
+                    return exemplares;
+                }
+
+                System.out.println("Não é possível registrar 0 ou menos exemplares");
+            } catch (Exception e) {
+                System.out.println("Digite um número inteiro maior que 0");
+            }
+        }
     }
 
     public static void listarLivros() {
@@ -72,12 +111,13 @@ public class LivroView {
             String categorias = String.join(", ", l.getCategorias());
 
             System.out.println(
-                    "ID: " + l.getId() +
-                    " | Titulo: " + l.getTitulo() +
-                    " | Ano de publicacao: " + l.getAnoPublicacao() +
-                    " | ISBN: " + l.getISBN() +
-                    " | Quantidade de exemplares: " + l.getQuantidade() +
-                    " | Categorias: " + categorias);
+                "ID: " + l.getId() +
+                " | Titulo: " + l.getTitulo() +
+                " | Ano de publicacao: " + l.getAnoPublicacao() +
+                " | ISBN: " + l.getISBN() +
+                " | Quantidade de exemplares: " + l.getQuantidade() +
+                " | Categorias: " + categorias
+            );
         }
     }
 

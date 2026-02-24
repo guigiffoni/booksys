@@ -1,28 +1,42 @@
-package DAO;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.Livro;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 
 public class LivroDAO {
-    private String arq = "livros.dat";
-    private int proxID;
+    private String nomeArquivo = "livros.dat";
+    private int ultimoId;
+
+    LivroDAO() throws IOException {
+        File arquivo = new File("./livros.dat");
+        boolean arquivoExiste = arquivo.exists();
+
+        if (arquivoExiste) {
+            FileInputStream fis = new FileInputStream(nomeArquivo);
+            ObjectInputStream reader = new ObjectInputStream(fis);
+
+            this.ultimoId = reader.read();
+            reader.close();
+        } else {
+            FileOutputStream fos = new FileOutputStream(nomeArquivo, true);
+            ObjectOutputStream writer = new ObjectOutputStream(fos);
+
+            writer.write(0);
+            writer.close();
+        }
+    }
 
     // ----- CREATE
     public void salvar(Livro livro) {
         try {
-            FileOutputStream fos = new FileOutputStream(arq, true);
+            FileOutputStream fos = new FileOutputStream(nomeArquivo, true);
             ObjectOutputStream writer = new ObjectOutputStream(fos);
+
             writer.writeObject(livroParaString(livro));
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        writer.close();
     }
 
     // ----- READ
@@ -30,7 +44,7 @@ public class LivroDAO {
         List<Livro> lista = new ArrayList<>();
 
         try {
-            FileInputStream fis = new FileInputStream(arq);
+            FileInputStream fis = new FileInputStream(nomeArquivo);
             ObjectInputStream reader = new ObjectInputStream(fis);
 
             while () {
@@ -82,7 +96,7 @@ public class LivroDAO {
         List<Livro> lista = listar();
 
         try {
-            FileOutputStream fos = new FileOutputStream(arq);
+            FileOutputStream fos = new FileOutputStream(nomeArquivo);
             ObjectOutputStream writer = new ObjectOutputStream(fos);
 
             for (Livro l : lista) {
@@ -105,7 +119,7 @@ public class LivroDAO {
         List<Livro> lista = listar();
 
         try {
-            FileOutputStream fos = new FileOutputStream(arq);
+            FileOutputStream fos = new FileOutputStream(nomeArquivo);
             ObjectOutputStream writer = new ObjectOutputStream(fos);
 
             for (Livro l : lista) {
