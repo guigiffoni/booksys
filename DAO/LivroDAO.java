@@ -4,17 +4,21 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.Livro;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 
 public class LivroDAO {
-    private String arq = "livros.txt";
+    private String arq = "livros.dat";
+    private int proxID;
 
     // ----- CREATE
     public void salvar(Livro livro) {
         try {
-            FileWriter fw = new FileWriter(arq, true);
-            BufferedWriter writer = new BufferedWriter(fw);
-            writer.write(livroParaString(livro));
-            writer.newLine();
+            FileOutputStream fos = new FileOutputStream(arq, true);
+            ObjectOutputStream writer = new ObjectOutputStream(fos);
+            writer.writeObject(livroParaString(livro));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -22,20 +26,19 @@ public class LivroDAO {
     }
 
     // ----- READ
-    public List<Livro> listar() {
+    public List<Livro> listar(){
         List<Livro> lista = new ArrayList<>();
 
         try {
-            FileReader fr = new FileReader(arq);
-            BufferedReader reader = new BufferedReader(fr);
+            FileInputStream fis = new FileInputStream(arq);
+            ObjectInputStream reader = new ObjectInputStream(fis);
 
-            String linha;
-
-            while ((linha = reader.readLine()) != null) {
-                lista.add(stringParaLivro(linha));
+            while () {
+                //Livro livro = (Livro) 
             }
 
             reader.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,35 +46,52 @@ public class LivroDAO {
         return lista;
     }
 
-    /*
-     * // busca livros pelo ID
-     * public Livro buscarId(int id){
-     * List<Livro> lista = listar();
-     * for(Livro l : lista){
-     * if(l.getId() == id)
-     * return l;
-     * }
-     * 
-     * return null;
-     * }
-     */
+    // BUSCA
+    
+    // busca livros pelo titulo
+    public Livro buscarTitulo(String titulo){
+        List<Livro> lista = listar();
+        for(Livro l : lista){
+            if(l.getTitulo().equalsIgnoreCase(titulo))
+                return l;
+    }
+    
+        return null;
+    }
+
+    // busca livros pelo ISBN
+    public Livro buscarISBN(String ISBN){
+        List<Livro> lista = listar();
+        for(Livro l : lista){
+            if(l.getISBN().equalsIgnoreCase(ISBN))
+                return l;
+        }
+
+        return null;
+    }
+
+    // busca livro pela categoria 
+    public Livro buscaLivroCategoria(String categoria){
+        List<Livro> lista = listar();
+        
+    }
+     
 
     // ----- UPDATE
-    public void atualizar(Livro livroAtt) {
+    public void atualizar(Livro livroAtt){
         List<Livro> lista = listar();
 
         try {
-            FileWriter fr = new FileWriter(arq);
-            BufferedWriter writer = new BufferedWriter(fr);
+            FileOutputStream fos = new FileOutputStream(arq);
+            ObjectOutputStream writer = new ObjectOutputStream(fos);
 
             for (Livro l : lista) {
                 if (l.getId() == livroAtt.getId()) {
-                    writer.write(livroParaString(livroAtt));
+                    writer.writeObject(livroParaString(livroAtt));
                 } else {
-                    writer.write(livroParaString(l));
+                    writer.writeObject(livroParaString(l));
                 }
 
-                writer.newLine();
                 writer.close();
             }
 
@@ -81,17 +101,16 @@ public class LivroDAO {
     }
 
     // ----- DELETE
-    public void remover(int id) {
+    public void remover(String titulo){
         List<Livro> lista = listar();
 
         try {
-            FileWriter fw = new FileWriter(arq);
-            BufferedWriter writer = new BufferedWriter(fw);
+            FileOutputStream fos = new FileOutputStream(arq);
+            ObjectOutputStream writer = new ObjectOutputStream(fos);
 
             for (Livro l : lista) {
-                if (l.getId() != id) {
-                    writer.write(livroParaString(l));
-                    writer.newLine();
+                if (!l.getTitulo().equalsIgnoreCase(titulo)){
+                    writer.writeObject(livroParaString(l));
                 }
             }
 
@@ -103,7 +122,7 @@ public class LivroDAO {
 
     // converte os dados de um livro em uma string para ser armazenado no arquivo.
     // separa os dados pelo tamanho de cada string
-    private String livroParaString(Livro livro) {
+    private String livroParaString(Livro livro){
         // junta as categorias numa única string e as separa por vírgula
         String categorias = String.join(",", livro.getCategorias());
         String dados = "";
@@ -123,7 +142,7 @@ public class LivroDAO {
     }
 
     // converte uma string para um objeto livro novamente
-    private Livro stringParaLivro(String registro) {
+    private Livro stringParaLivro(String registro){
         int[] indice = { 4 };
 
         String idStr = separaDado(registro, indice);
@@ -146,7 +165,7 @@ public class LivroDAO {
     }
 
     // descobrir o tamanho da string para fazer a separação dos dados
-    private String tamMetadado(String valor) {
+    private String tamMetadado(String valor){
         int tam = valor.length();
         // define o tamanho do metadado como sempre com 4 casas e preenche com 0 à esquerda
         String tamFormatado = String.format("%04d", tam);
@@ -155,7 +174,7 @@ public class LivroDAO {
     }
 
     // lê os campos da string separadamente, distinguindo metadado de dado
-    private String separaDado(String dados, int[] indice) {
+    private String separaDado(String dados, int[] indice){
         // recorta a string e separa os 4 primeiros dígitos, que indicam o tamanho da string
         String tamString = dados.substring(indice[0], indice[0] + 4);
         int tam = Integer.parseInt(tamString);

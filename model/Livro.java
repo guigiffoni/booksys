@@ -1,6 +1,8 @@
 package model;
 
-public class Livro {
+import java.io.Serializable;
+
+public class Livro implements Serializable {
 
     // atributos
     private int id;
