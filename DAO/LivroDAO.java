@@ -9,8 +9,8 @@ public class LivroDAO {
     private String arq = "livros.txt";
 
     // ----- CREATE 
-    public void salvar(Livro livro){
-        try{
+    public void salvar(Livro livro) {
+        try {
             FileWriter fw = new FileWriter(arq, true);
             BufferedWriter writer = new BufferedWriter(fw);
             writer.write(livroParaString(livro));
@@ -25,17 +25,17 @@ public class LivroDAO {
     public List<Livro> listar(){
         List<Livro> lista = new ArrayList<>();
         
-        try{
+        try {
             FileReader fr = new FileReader(arq);
             BufferedReader reader = new BufferedReader(fr);
             
             String linha;
             
-            while ((linha = reader.readLine()) != null){
+            while ((linha = reader.readLine()) != null) {
                 lista.add(stringParaLivro(linha));
             }
-            reader.close();
 
+            reader.close();
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -55,19 +55,17 @@ public class LivroDAO {
     }*/
 
     // ----- UPDATE
-    public void atualizar(Livro livroAtt){
+    public void atualizar(Livro livroAtt) {
         List<Livro> lista = listar();
 
         try{
             FileWriter fr = new FileWriter(arq);
             BufferedWriter writer = new BufferedWriter(fr);
 
-            for(Livro l : lista){
-                if(l.getId() == livroAtt.getId()){
+            for(Livro l : lista) {
+                if(l.getId() == livroAtt.getId()) {
                     writer.write(livroParaString(livroAtt));
-                }
-
-                else{
+                } else {
                     writer.write(livroParaString(l));
                 }
 
@@ -75,37 +73,36 @@ public class LivroDAO {
                 writer.close();
             }
 
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     // ----- DELETE 
-    public void remover(int id){
+    public void remover(int id) {
         List<Livro> lista = listar();
 
-        try{
+        try {
             FileWriter fw = new FileWriter(arq);
             BufferedWriter writer = new BufferedWriter(fw);
         
-            for(Livro l : lista){
-                if(l.getId() != id){
+            for (Livro l : lista) {
+                if (l.getId() != id) {
                     writer.write(livroParaString(l));
                     writer.newLine();
                 }
             }
 
             writer.close();
-            
-        } catch(IOException e){
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
 
     // converte os dados de um livro em uma string para ser armazenado no arquivo. separa os dados pelo tamanho de cada string
-    private String livroParaString(Livro livro){
+    private String livroParaString(Livro livro) {
         String categorias = String.join(",", livro.getCategorias());        // junta as categorias numa única string e as separa por vírgula
-        String dados = ""; 
+        String dados = "";
         dados += tamMetadado(String.valueOf(livro.getId()));
         dados += tamMetadado(livro.getTitulo());
         dados += tamMetadado(String.valueOf(livro.getAnoPublicacao()));
@@ -118,7 +115,6 @@ public class LivroDAO {
         String tamTotalFormatado = String.format("%04d", tamTotal); 
 
         return tamTotalFormatado + dados;
-
     }
 
     // converte uma string para um objeto livro novamente
@@ -145,15 +141,16 @@ public class LivroDAO {
     }
 
     // descobrir o tamanho da string para fazer a separação dos dados
-    private String tamMetadado (String valor){
+    private String tamMetadado (String valor) {
         int tam = valor.length();
         String tamFormatado = String.format("%04d", tam);       // define o tamanho do metadado como sempre com 4 casas e preenche com 0 à esquerda
+        
         return tamFormatado + valor; 
     }
 
     // lê os campos da string separadamente, distinguindo metadado de dado
-    private String separaDado (String dados, int[] indice){
-        String tamString = dados.substring(indice[0],indice[0]+4);      // recorta a string e separa os 4 primeiros dígitos, que indicam o tamanho da string
+    private String separaDado (String dados, int[] indice) {
+        String tamString = dados.substring(indice[0], indice[0] + 4);      // recorta a string e separa os 4 primeiros dígitos, que indicam o tamanho da string
         int tam = Integer.parseInt(tamString);
 
         indice[0] += 4;
