@@ -3,13 +3,12 @@ import controller.LivroController;
 import java.util.Scanner;
 import java.util.List;
 
-
 public class LivroView {
     private static LivroController controller = new LivroController();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        int op = 0;
+        int opcao = 0;
 
         do {
             System.out.println("---- MENU ---");
@@ -20,30 +19,30 @@ public class LivroView {
             System.out.println("0. Sair");
             System.out.print("Escolha uma opcão: ");
 
-            op = Integer.parseInt(scanner.nextLine());
+            opcao = Integer.parseInt(scanner.nextLine());
 
-            switch(op) {
-                case 1: 
-                    cadastrarLivro(); 
+            switch (opcao) {
+                case 1:
+                    cadastrarLivro();
                     break;
-                case 2: 
-                    listarLivros(); 
+                case 2:
+                    listarLivros();
                     break;
-                case 3: 
-                    atualizarLivro(); 
+                case 3:
+                    atualizarLivro();
                     break;
-                case 4: 
-                    removerLivro(); 
+                case 4:
+                    removerLivro();
                     break;
-                case 0: 
-                    System.out.println("Saindo..."); 
+                case 0:
+                    System.out.println("Saindo...");
                     break;
-                default: 
+                default:
                     System.out.println("Opcao invalida!");
                     break;
 
             }
-        } while (op != 0);
+        } while (opcao != 0);
     }
 
     public static void cadastrarLivro() {
@@ -60,9 +59,9 @@ public class LivroView {
         String[] categorias = scanner.nextLine().split(",");
 
         System.out.print("Quantidade de exemplares: ");
-        int qtd = Integer.parseInt(scanner.nextLine());
+        int quantidade = Integer.parseInt(scanner.nextLine());
 
-        controller.cadastrarLivro(titulo, ano, isbn, categorias, qtd);
+        controller.cadastrarLivro(titulo, ano, isbn, categorias, quantidade);
         System.out.println("Livro cadastrado com sucesso!");
     }
 
@@ -73,18 +72,17 @@ public class LivroView {
             String categorias = String.join(", ", l.getCategorias());
 
             System.out.println(
-                "ID: " + l.getId() + 
-                " | Titulo: " + l.getTitulo() + 
-                " | Ano de publicacao: " + l.getAnoPublicacao() + 
-                " | ISBN: " + l.getISBN() + 
-                " | Quantidade de exemplares: " + l.getQuantidade() + 
-                " | Categorias: " + categorias
-            );
+                    "ID: " + l.getId() +
+                    " | Titulo: " + l.getTitulo() +
+                    " | Ano de publicacao: " + l.getAnoPublicacao() +
+                    " | ISBN: " + l.getISBN() +
+                    " | Quantidade de exemplares: " + l.getQuantidade() +
+                    " | Categorias: " + categorias);
         }
     }
 
     public static void atualizarLivro() {
-         System.out.print("ID do livro para atualizar: ");
+        System.out.print("ID do livro para atualizar: ");
         int id = Integer.parseInt(scanner.nextLine());
 
         System.out.print("Novo título: ");
@@ -108,7 +106,7 @@ public class LivroView {
 
     public static void removerLivro() {
         System.out.print("ID do livro para remover: ");
-        
+
         int id = Integer.parseInt(scanner.nextLine());
         controller.removerLivro(id);
 
