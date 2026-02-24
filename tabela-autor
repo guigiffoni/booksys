@@ -1,4 +1,0 @@
-INT id
-STRING nome
-INT data_nascimento (AAAAMMDD)
-STRING nacionalidade

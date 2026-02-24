@@ -1,7 +1,0 @@
-INT id
-STRING nome
-INT data_publicacao (AAAAMMDD)
-STRING genero
-CHAR[20] ISBN
-INT quantidade
-STRING[] categorias
