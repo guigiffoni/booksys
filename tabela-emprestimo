@@ -4,6 +4,4 @@ INT id_usuario
 STRING data_emprestimo
 STRING data_devolucao
 BOOL devolvido
-INT qtd_renovacao
-INT limite_renovacao
 FLOAT multa
