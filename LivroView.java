@@ -19,6 +19,16 @@ public class LivroView {
         System.out.print("Escolha uma opcão: ");
     }
 
+    public int getOpcao() {
+        while (true) {
+            if (scanner.hasNextInt()) {
+                return Integer.parseInt(scanner.nextLine());
+            }
+
+            System.out.println("Favor inserir um número");
+        }
+    }
+
     public String getTitulo() {
         String titulo;
         
@@ -39,7 +49,7 @@ public class LivroView {
         String anoPublicacao;
 
         while (true) {
-            System.out.println("Ano de Publicação: ");
+            System.out.print("Ano de Publicação: ");
             anoPublicacao = scanner.nextLine();
 
             try {
@@ -54,7 +64,7 @@ public class LivroView {
         String isbn;
 
         while (true) {
-            System.out.println("ISBN: ");
+            System.out.print("ISBN: ");
             isbn = scanner.nextLine();
 
             if (isbn.length() < 13) {
@@ -70,7 +80,7 @@ public class LivroView {
         String[] categorias;
 
         while (true) {
-            System.out.println("Categorias (separadas por vírgula): ");
+            System.out.print("Categorias (separadas por vírgula): ");
             categorias = scanner.nextLine().split(",\s*");
 
             if (categorias.length == 0) {
@@ -87,7 +97,7 @@ public class LivroView {
         int exemplares;
 
         while (true) {
-            System.out.println("Exemplares: ");
+            System.out.print("Exemplares: ");
             quantidade = scanner.nextLine();
 
             try {
@@ -104,6 +114,7 @@ public class LivroView {
         }
     }
 
+    /*
     public static void listarLivros() {
         List<Livro> livros = controller.listarLivros();
 
@@ -120,6 +131,7 @@ public class LivroView {
             );
         }
     }
+    */
 
     public static void atualizarLivro() {
         System.out.print("ID do livro para atualizar: ");
@@ -148,7 +160,7 @@ public class LivroView {
         System.out.print("ID do livro para remover: ");
 
         int id = Integer.parseInt(scanner.nextLine());
-        controller.removerLivro(id);
+        // controller.removerLivro(id);
 
         System.out.println("Livro removido!");
     }

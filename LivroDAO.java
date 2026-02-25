@@ -1,67 +1,125 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LivroDAO {
     private String nomeArquivo = "livros.dat";
+    private static int TAMANHO_CABECALHO = 12;
+
     private int ultimoId;
+    private int numRegistros;
 
-    LivroDAO() throws IOException {
-        File arquivo = new File("./livros.dat");
-        boolean arquivoExiste = arquivo.exists();
+    LivroDAO() {
+        this.inicializaArquivo();
+    }
 
-        if (arquivoExiste) {
-            FileInputStream fis = new FileInputStream(nomeArquivo);
-            ObjectInputStream reader = new ObjectInputStream(fis);
+    private void inicializaArquivo() {
+        File arquivo = new File(this.nomeArquivo);
 
-            this.ultimoId = reader.read();
-            reader.close();
-        } else {
-            FileOutputStream fos = new FileOutputStream(nomeArquivo, true);
-            ObjectOutputStream writer = new ObjectOutputStream(fos);
+        try {
+            if (arquivo.exists()) {
+                RandomAccessFile raf = new RandomAccessFile(arquivo, "r");
 
-            writer.write(0);
-            writer.close();
+                raf.seek(0);
+                this.ultimoId = raf.readInt();
+                this.numRegistros = raf.readInt();
+
+                raf.close();
+
+            } else {
+                RandomAccessFile raf = new RandomAccessFile(arquivo, "rw");
+                this.numRegistros = 0;
+                this.ultimoId = 0;
+
+                raf.setLength(TAMANHO_CABECALHO);
+                raf.seek(0);
+                raf.writeInt(this.ultimoId);
+                raf.writeInt(this.numRegistros);
+                // define onde começam os dados
+                raf.writeInt(TAMANHO_CABECALHO);
+
+                raf.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    private void atualizaCabecalho(RandomAccessFile raf) throws IOException {
+        raf.seek(0);
+        raf.writeInt(this.ultimoId);
+        raf.writeInt(this.numRegistros);
+    }
+
+    public void escreveBytes(Livro livro) throws IOException {
+        RandomAccessFile raf = new RandomAccessFile(this.nomeArquivo, "rw");
+        byte[] dadosRegistro = livro.toBytes();
+
+        this.atualizaCabecalho(raf);
+        raf.seek(raf.length());
+        raf.write(dadosRegistro);
     }
 
     // ----- CREATE
-    public void salvar(Livro livro) {
+    public void inserir(Livro livro) {
         try {
-            FileOutputStream fos = new FileOutputStream(nomeArquivo, true);
-            ObjectOutputStream writer = new ObjectOutputStream(fos);
+            this.ultimoId += 1;
+            this.numRegistros += 1;
 
-            writer.writeObject(livroParaString(livro));
+            livro.setId(this.ultimoId);
+
+            this.escreveBytes(livro);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        writer.close();
     }
 
     // ----- READ
-    public List<Livro> listar(){
-        List<Livro> lista = new ArrayList<>();
-
+    public void listar() {
         try {
-            FileInputStream fis = new FileInputStream(nomeArquivo);
-            ObjectInputStream reader = new ObjectInputStream(fis);
+            RandomAccessFile raf = new RandomAccessFile(this.nomeArquivo, "r");
+            raf.seek(TAMANHO_CABECALHO);
 
-            while () {
-                //Livro livro = (Livro) 
+            Livro livro = new Livro();
+
+            short tamRegistro;
+
+            int numCategorias;
+            String[] categorias;
+
+            for (int i = 0; i < this.numRegistros; ++i) {
+                while (raf.readChar() == '*') {
+                    long posInicial = raf.getFilePointer();
+                    tamRegistro = raf.readShort();
+                    long posProxima = posInicial + tamRegistro;
+    
+                    raf.seek(posProxima);
+                }
+
+                tamRegistro = raf.readShort();
+
+                livro.setId(raf.readInt());
+                livro.setTitulo(raf.readUTF());
+                livro.setAnoPublicacao(raf.readInt());
+                livro.setISBN(raf.readUTF());
+
+                numCategorias = raf.readInt();
+                categorias = new String[numCategorias];
+                for (int j = 0; j < numCategorias; ++j) {
+                    categorias[j] = raf.readUTF();
+                }
+                livro.setCategorias(categorias);
+                livro.setQuantidade(raf.readInt());
+
+                System.out.println(livro.toString());
             }
 
-            reader.close();
-
+            raf.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return lista;
     }
+    /*
 
     // BUSCA
-    
     // busca livros pelo titulo
     public Livro buscarTitulo(String titulo){
         List<Livro> lista = listar();
@@ -133,6 +191,7 @@ public class LivroDAO {
             e.printStackTrace();
         }
     }
+    */
 
     // converte os dados de um livro em uma string para ser armazenado no arquivo.
     // separa os dados pelo tamanho de cada string
@@ -156,6 +215,7 @@ public class LivroDAO {
     }
 
     // converte uma string para um objeto livro novamente
+    /*
     private Livro stringParaLivro(String registro){
         int[] indice = { 4 };
 
@@ -177,6 +237,7 @@ public class LivroDAO {
 
         return livro;
     }
+    */
 
     // descobrir o tamanho da string para fazer a separação dos dados
     private String tamMetadado(String valor){
