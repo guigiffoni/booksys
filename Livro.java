@@ -3,18 +3,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-public class Livro implements Serializable {
-
+public class Livro {
     // atributos
-    private int id;
+    private short id;
     private String titulo;
-    private int anoPublicacao;
+    private short anoPublicacao;
     private String ISBN;
     private String[] categorias;
-    private int quantidade;
+    private short quantidade;
 
     public Livro() {
 
@@ -22,11 +20,27 @@ public class Livro implements Serializable {
 
     public Livro(
         String titulo, 
-        int anoPublicacao, 
+        short anoPublicacao, 
         String ISBN, 
         String[] categorias, 
-        int quantidade
+        short quantidade
     ) {
+        this.setTitulo(titulo);
+        this.setAnoPublicacao(anoPublicacao);
+        this.setISBN(ISBN);
+        this.setCategorias(categorias);
+        this.setQuantidade(quantidade);
+    }
+
+    private Livro(
+        short id,
+        String titulo, 
+        short anoPublicacao, 
+        String ISBN, 
+        String[] categorias, 
+        short quantidade
+    ) {
+        this.setId(id);
         this.setTitulo(titulo);
         this.setAnoPublicacao(anoPublicacao);
         this.setISBN(ISBN);
@@ -42,29 +56,49 @@ public class Livro implements Serializable {
         dos.writeChar(' ');
         dos.writeShort(this.getTamanhoEmBytes());
 
-        dos.writeInt(id);
+        dos.writeShort(id);
         dos.writeUTF(titulo);
-        dos.writeInt(anoPublicacao);
+        dos.writeShort(anoPublicacao);
         dos.writeUTF(ISBN);
-        dos.writeInt(categorias.length);
+        dos.write(categorias.length);
         for (String categoria : categorias) {
             dos.writeUTF(categoria);
         }
-        dos.writeInt(quantidade);
+        dos.writeShort(quantidade);
         
         return baos.toByteArray();
     }
 
-    // public static Livro fromBytes(byte[] dados) throws IOException {
-    //     ByteArrayInputStream bais = new ByteArrayInputStream(dados);
-    //     DataInputStream dis = new DataInputStream(bais);
+    public static Livro fromBytes(byte[] dados) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(dados);
+        DataInputStream dis = new DataInputStream(bais);
 
+        short id = dis.readShort();
+        String titulo = dis.readUTF();
+        short anoPublicacao = dis.readShort();
+        String isbn = dis.readUTF();
 
-    // }
+        int numCategorias = dis.read();
+        String[] categorias = new String[numCategorias];
+        for (short i = 0; i < numCategorias; ++i) {
+            categorias[i] = dis.readUTF();
+        }
+
+        short quantidade = dis.readShort();
+
+        return new Livro(
+            id, 
+            titulo, 
+            anoPublicacao, 
+            isbn, 
+            categorias, 
+            quantidade
+        );
+    }
 
     public int getTamanhoEmBytes() {
-        // id + anoPublicacao + numCategorias + quantidade + ISBN
-        int tamanho = 4 * 4 + 15;
+        // id + anoPublicacao + quantidade + numCategorias + ISBN
+        int tamanho = 2 * 3 + 1 + 15;
 
         // +2 bytes para tamanho da string
         tamanho += titulo.getBytes(StandardCharsets.UTF_8).length + 2;
@@ -77,11 +111,11 @@ public class Livro implements Serializable {
     }
 
     // getters e setters
-    public int getId() {
+    public short getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(short id) {
         if (id <= 0) {
             throw new RuntimeException("ID não pode ser menor que 1");
         }
@@ -101,11 +135,11 @@ public class Livro implements Serializable {
         this.titulo = titulo;
     }
 
-    public int getAnoPublicacao() {
+    public short getAnoPublicacao() {
         return this.anoPublicacao;
     }
 
-    public void setAnoPublicacao(int anoPublicacao) {
+    public void setAnoPublicacao(short anoPublicacao) {
         this.anoPublicacao = anoPublicacao;
     }
 
@@ -137,7 +171,7 @@ public class Livro implements Serializable {
         return this.quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(short quantidade) {
         if (quantidade < 0) {
             throw new RuntimeException("Quantidade não pode ser negativa");
         }
@@ -148,7 +182,7 @@ public class Livro implements Serializable {
     @Override
     public String toString() {
         return String.format(
-            "%d\t|%s\t|%d\t|%s\t|%s\t|%d",
+            "\t%d |\t%s |\t%d |\t%s |\t%s |\t%d",
             this.getId(),
             this.getTitulo(),
             this.getAnoPublicacao(),

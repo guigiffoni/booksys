@@ -1,8 +1,4 @@
 import java.util.Scanner;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.io.IOException;
-import java.util.List;
 
 public class LivroView {
     private static LivroController controller = new LivroController();
@@ -29,6 +25,28 @@ public class LivroView {
         }
     }
 
+    public short getId() {
+        String id;
+
+        while (true) {
+            System.out.print("ID do livro: ");
+            id = scanner.nextLine();
+            short idParseado;
+
+            try {
+                idParseado = Short.parseShort(id);
+
+                if (idParseado > 0) {
+                    return idParseado;
+                }
+
+                System.out.println("IDs menores que 1 são inválidos");
+            } catch (Exception e) {
+                System.out.println("Digite um número inteiro maior que 0");
+            }
+        }
+    }
+
     public String getTitulo() {
         String titulo;
         
@@ -45,7 +63,7 @@ public class LivroView {
         }
     }
 
-    public int getAnoPublicacao() {
+    public short getAnoPublicacao() {
         String anoPublicacao;
 
         while (true) {
@@ -53,7 +71,7 @@ public class LivroView {
             anoPublicacao = scanner.nextLine();
 
             try {
-                return Integer.parseInt(anoPublicacao);
+                return Short.parseShort(anoPublicacao);
             } catch (Exception e) {
                 System.out.println("Digite um número inteiro");
             }
@@ -92,16 +110,16 @@ public class LivroView {
         }
     }
 
-    public int getQuantidade() {
+    public short getQuantidade() {
         String quantidade;
-        int exemplares;
+        short exemplares;
 
         while (true) {
             System.out.print("Exemplares: ");
             quantidade = scanner.nextLine();
 
             try {
-                exemplares = Integer.parseInt(quantidade);
+                exemplares = Short.parseShort(quantidade);
 
                 if (exemplares > 0) {
                     return exemplares;
@@ -115,24 +133,6 @@ public class LivroView {
     }
 
     /*
-    public static void listarLivros() {
-        List<Livro> livros = controller.listarLivros();
-
-        for (Livro l : livros) {
-            String categorias = String.join(", ", l.getCategorias());
-
-            System.out.println(
-                "ID: " + l.getId() +
-                " | Titulo: " + l.getTitulo() +
-                " | Ano de publicacao: " + l.getAnoPublicacao() +
-                " | ISBN: " + l.getISBN() +
-                " | Quantidade de exemplares: " + l.getQuantidade() +
-                " | Categorias: " + categorias
-            );
-        }
-    }
-    */
-
     public static void atualizarLivro() {
         System.out.print("ID do livro para atualizar: ");
         int id = Integer.parseInt(scanner.nextLine());
@@ -155,13 +155,5 @@ public class LivroView {
         controller.atualizarLivro(id, titulo, ano, ISBN, categorias, qtd);
         System.out.println("Livro atualizado com sucesso!");
     }
-
-    public static void removerLivro() {
-        System.out.print("ID do livro para remover: ");
-
-        int id = Integer.parseInt(scanner.nextLine());
-        // controller.removerLivro(id);
-
-        System.out.println("Livro removido!");
-    }
+    */
 }

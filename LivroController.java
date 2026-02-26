@@ -1,12 +1,16 @@
 import java.io.IOException;
-import java.util.List;
 
 public class LivroController {
     private LivroDAO dao;
     private LivroView view;
 
     public LivroController() {
-        this.dao = new LivroDAO();
+        try {
+            this.dao = new LivroDAO();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
         this.view = new LivroView();
     }
 
@@ -19,16 +23,16 @@ public class LivroController {
 
             switch (opcao) {
                 case 1:
-                    this.cadastrarLivro();
+                    this.cadastraLivro();
                     break;
                 case 2:
-                    this.listarLivros();
+                    this.listaLivros();
                     break;
                 case 3:
-                    
+                    this.atualizaLivro();
                     break;
                 case 4:
-                    
+                    this.removeLivro();
                     break;
                 case 0:
                     
@@ -37,40 +41,57 @@ public class LivroController {
                     System.out.println("Opção inválida!\n");
                     break;
             }
-        } while (opcao != '0');
+        } while (opcao != 0);
     }
 
-    // cadastrar livro
-    public void cadastrarLivro() {
+    private Livro criaLivro() {
         String titulo = this.view.getTitulo();
-        int anoPublicacao = this.view.getAnoPublicacao();
+        short anoPublicacao = this.view.getAnoPublicacao();
         String isbn = this.view.getIsbn();
         String[] categorias = this.view.getCategorias();
-        int quantidade = this.view.getQuantidade();
+        short quantidade = this.view.getQuantidade();
 
-        Livro livro = new Livro(titulo, anoPublicacao, isbn, categorias, quantidade);
-
-        dao.inserir(livro);
+        return new Livro(titulo, anoPublicacao, isbn, categorias, quantidade);
     }
 
-    // listar todos os livros
-    public void listarLivros(){
-        dao.listar();
+    public void cadastraLivro() {
+        Livro livro = this.criaLivro();
+
+        try {
+            this.dao.inserir(livro);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // atualizar livro já existente
-    public void atualizarLivro(int id, String titulo, int ano, String ISBN, String[] categorias, int quantidade){
-        // Livro livro = new Livro(titulo, ano, ISBN, categorias, quantidade);
-        // livro.setId(id);
-        // dao.atualizar(livro);
+    public void listaLivros() {
+        try {
+            this.dao.listar();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // remover livro pelo titulo
-    /* 
-    public void removerLivro(String titulo) {
-        dao.remover(titulo);
+    public void removeLivro() {
+        short id = this.view.getId();
+
+        try {
+            this.dao.deletar(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    */
+
+    public void atualizaLivro() {
+        short id = this.view.getId();
+        Livro livro = this.criaLivro();
+
+        try {
+            this.dao.atualizar(livro);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     
     public static void main(String[] args) throws Exception {
         LivroController controller = new LivroController();
