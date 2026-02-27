@@ -84,10 +84,10 @@ public class LivroController {
 
     public void atualizaLivro() {
         short id = this.view.getId();
-        Livro livro = this.criaLivro();
+        Livro novoLivro = this.criaLivro();
 
         try {
-            this.dao.atualizar(livro);
+            this.dao.atualizar(id, novoLivro);
         } catch (IOException e) {
             e.printStackTrace();
         }

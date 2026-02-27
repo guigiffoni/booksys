@@ -1,7 +1,6 @@
 import java.util.Scanner;
 
 public class LivroView {
-    private static LivroController controller = new LivroController();
     private static Scanner scanner = new Scanner(System.in);
 
     public void printaMenuInicial() {
