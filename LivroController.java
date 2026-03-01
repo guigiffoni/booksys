@@ -76,7 +76,14 @@ public class LivroController {
         short id = this.view.getId();
 
         try {
-            this.dao.deletar(id);
+            if (!this.dao.encontraLivro(id)) {
+                // refatorar, mensagem não deve ser resposabilidade
+                // do controller
+                System.out.println("Livro não encontrado");
+                return;
+            }
+            
+            this.dao.deletar();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,10 +91,17 @@ public class LivroController {
 
     public void atualizaLivro() {
         short id = this.view.getId();
-        Livro novoLivro = this.criaLivro();
-
+        
         try {
-            this.dao.atualizar(id, novoLivro);
+            if (!this.dao.encontraLivro(id)) {
+                // refatorar, mensagem não deve ser resposabilidade
+                // do controller
+                System.out.println("Livro não encontrado");
+                return;
+            }
+
+            Livro novoLivro = this.criaLivro();
+            this.dao.atualizar(novoLivro);
         } catch (IOException e) {
             e.printStackTrace();
         }

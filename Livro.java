@@ -53,9 +53,6 @@ public class Livro {
         DataOutputStream dos = new DataOutputStream(baos);
         
         // lapide
-        dos.writeChar(' ');
-        dos.writeShort(this.getTamanhoEmBytes());
-
         dos.writeShort(id);
         dos.writeUTF(titulo);
         dos.writeShort(anoPublicacao);

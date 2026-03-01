@@ -19,21 +19,20 @@ public class LivroDAO {
         boolean arquivoPresente = arquivo.exists();
 
         this.raf = new RandomAccessFile(this.nomeArquivo, "rw");
+        this.raf.seek(0);
 
         if (arquivoPresente) {
-            raf.seek(0);
             this.ultimoId = raf.readShort();
             this.numRegistros = raf.readShort();
             this.numRegistrosDeletados = raf.readShort();
-            this.bytePrimeiraLapide = raf.readShort();
+            this.bytePrimeiraLapide = raf.readLong();
         } else {
             this.numRegistros = 0;
             this.ultimoId = 0;
             this.numRegistrosDeletados = 0;
-            this.bytePrimeiraLapide = -1;
+            this.bytePrimeiraLapide = Long.MAX_VALUE;
 
             this.raf.setLength(TAMANHO_CABECALHO);
-            this.raf.seek(0);
             this.raf.writeShort(this.ultimoId);
             this.raf.writeShort(this.numRegistros);
             this.raf.writeShort(this.numRegistrosDeletados);
@@ -44,19 +43,14 @@ public class LivroDAO {
     }
 
     public void inserir(Livro livro) throws IOException {
-        long secao = this.buscaSecaoLivre(livro.getTamanhoEmBytes());
+        this.seekSecaoLivre(livro.getTamanhoEmBytes());
+
         this.ultimoId += 1;
         this.numRegistros += 1;
 
         livro.setId(this.ultimoId);
-        
-        this.raf.seek(secao);
-
-        if (secao != this.raf.length()) {
-            this.setLapide(true);
-        }
-
-        this.escreveBytes(livro);
+        this.atualizaCabecalho();
+        this.escreveDadosLivro(livro);
     }
 
     // refatorar, DAO não deve conter printagem, retornar lista de livros
@@ -68,65 +62,79 @@ public class LivroDAO {
 
         for (int i = 0; i < this.numRegistros; ++i) {
             this.avancaEnquanto('*');
+            // +2 para desconsiderar a lápide
+            this.raf.seek(this.raf.getFilePointer() + 2);
 
             tamRegistro = this.raf.readShort();
-            // subtraindo para desconsiderar o cabeçalho
             byte[] buffer = new byte[tamRegistro];
             this.raf.readFully(buffer);
             livro = Livro.fromBytes(buffer);
 
             System.out.println(livro.toString());
         }
-
     }
 
-    public void atualizar(short id, Livro livro) throws IOException {
-        if (!this.encontraLivro(id)) {
-            // implementar exceção, id não encontrado
-            System.out.println("ID não encontrado");
-            return;
-        }
-
-        short tamRegistroOriginal = this.raf.readShort();
+    public void atualizar(Livro livro) throws IOException {
         int tamRegistroNovo = livro.getTamanhoEmBytes();
-        long enderecoEscrita = this.raf.getFilePointer();
+        long inicioRegistro = this.raf.getFilePointer();
 
-        if (tamRegistroNovo > tamRegistroOriginal) {
-            this.setLapide(true);
+        this.raf.seek(inicioRegistro + 2);
+        short tamRegistroAntigo = this.raf.readShort();
+        short idOriginal = this.raf.readShort();
 
-            enderecoEscrita = this.buscaSecaoLivre(tamRegistroNovo);
-        }
+        livro.setId(idOriginal);
 
-        this.raf.seek(enderecoEscrita);
-        this.escreveBytes(livro);
-    }
+        this.raf.seek(inicioRegistro);
 
-    public void deletar(short id) throws IOException {
-        if (this.encontraLivro(id)) {
-            this.setLapide(true);
-
-            this.numRegistros -= 1;
-
+        if (tamRegistroNovo > tamRegistroAntigo) {
+            this.remocaoLogica();
             this.atualizaCabecalho();
-        } else {
-            System.out.println("Não foi possível encontrar o livro");
+            this.seekSecaoLivre(tamRegistroNovo);
         }
+
+        this.escreveDadosLivro(livro);
     }
 
-    private boolean encontraLivro(short id) throws IOException {
+    public void deletar() throws IOException {
+        this.numRegistros -= 1;
+
+        remocaoLogica();
+
+        this.atualizaCabecalho();
+    }
+
+    private void remocaoLogica() throws IOException {
+        long enderecoPonteiro = this.raf.getFilePointer();
+
+        this.numRegistrosDeletados += 1;
+
+        if (this.bytePrimeiraLapide > enderecoPonteiro) {
+            this.bytePrimeiraLapide = enderecoPonteiro;
+        }
+        
+        this.raf.writeChar('*');
+    }
+
+    public boolean encontraLivro(short id) throws IOException {
+        this.raf.seek(TAMANHO_CABECALHO);
+
         long tamArquivo = this.raf.length();
-        long inicioRegistro;
+        long inicioRegistro = this.raf.getFilePointer();
 
         short tamRegistro;
         short idRegistro;
 
-        this.raf.seek(TAMANHO_CABECALHO);
-
-        while (this.raf.getFilePointer() < tamArquivo) {
+        while (true) {
             this.avancaEnquanto('*');
 
-            tamRegistro = this.raf.readShort();
             inicioRegistro = this.raf.getFilePointer();
+
+            if (inicioRegistro == tamArquivo) {
+                break;
+            }
+            
+            this.raf.readChar();
+            tamRegistro = this.raf.readShort();
             idRegistro = this.raf.readShort();
 
             if (idRegistro == id) {
@@ -134,7 +142,7 @@ public class LivroDAO {
                 return true;
             }
 
-            this.raf.seek(inicioRegistro + tamRegistro);
+            this.raf.seek(inicioRegistro + tamRegistro + 4);
         }
 
         return false;
@@ -155,63 +163,69 @@ public class LivroDAO {
 
     private void avancaEnquanto(char lapide) throws IOException {
         long tamRegistro = 0;
+        long posInicio = this.raf.getFilePointer();
+        long posProxima;
+        long posFinalArquivo = this.raf.length();
 
-        while (this.raf.readChar() == lapide) {
-            long posInicial = this.raf.getFilePointer();
+        while (posInicio < posFinalArquivo) {
+            posInicio = this.raf.getFilePointer();
+
+            if (this.raf.readChar() != lapide) {
+                this.raf.seek(posInicio);
+                break;
+            }
+
             tamRegistro = (long) this.raf.readShort();
-            long posProxima = posInicial + tamRegistro;
-
+            posProxima = posInicio + tamRegistro + 4;
             this.raf.seek(posProxima);
         }
     }
 
-    private long buscaSecaoLivre(int tamanhoSecao) throws IOException {
+    private void seekSecaoLivre(int tamanhoSecao) throws IOException {
         short tamRegistroDeletado;
+        long enderecoRegistro;
 
         this.raf.seek(TAMANHO_CABECALHO);
 
-        if (this.bytePrimeiraLapide > TAMANHO_CABECALHO) {
+        if (this.bytePrimeiraLapide < Long.MAX_VALUE) {
             this.raf.seek(this.bytePrimeiraLapide);
         }
 
+        // encontra seção disponível em registros deletados
         for (int i = 0; i < this.numRegistrosDeletados; ++i) {
+            enderecoRegistro = this.raf.getFilePointer();
+            this.raf.readChar();
             tamRegistroDeletado = this.raf.readShort();
 
             if (tamRegistroDeletado >= tamanhoSecao) {
-                return this.raf.getFilePointer();
+                this.raf.seek(enderecoRegistro);
+                return;
             }
 
             this.avancaEnquanto(' ');
         }
 
-        return this.raf.length();
+        // seek para o final do arquivo
+        this.raf.seek(this.raf.length());
     }
 
-    private void escreveBytes(Livro livro) throws IOException {
-        this.raf.write(livro.toBytes());
-    }
+    private void escreveDadosLivro(Livro livro) throws IOException {
+        int tamanhoRegistro = livro.getTamanhoEmBytes();
 
-    private void setLapide(boolean exclusao) throws IOException {
-        long enderecoLapide = this.raf.getFilePointer() - 4;
-        char lapide = exclusao ? '*' : ' ';
+        this.raf.writeChar(' ');
 
-        this.raf.seek(enderecoLapide);
-        this.raf.writeChar(lapide);
+        // Caso não seja uma escrita de final de arquivo, ou seja, se
+        // estivermos sobrescrevendo um registro, manter o a informação do
+        // tamanho original para futuras navegações
+        if (this.raf.getFilePointer() != this.raf.length()) {
+            long endereco = this.raf.getFilePointer();
 
-        if (exclusao) {
-            this.numRegistrosDeletados += 1;
-            
-            if (this.bytePrimeiraLapide > enderecoLapide) {
-                this.bytePrimeiraLapide = enderecoLapide;
-            }
-        } else {
-            this.numRegistrosDeletados -= 1;
+            tamanhoRegistro = this.raf.readShort();
 
-            if (this.bytePrimeiraLapide == enderecoLapide) {
-                this.bytePrimeiraLapide = TAMANHO_CABECALHO;
-            }
+            this.raf.seek(endereco);
         }
 
-        this.raf.seek(enderecoLapide + 4);
+        this.raf.writeShort(tamanhoRegistro);
+        this.raf.write(livro.toBytes());
     }
 }
