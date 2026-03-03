@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class LivroView {
@@ -9,7 +10,7 @@ public class LivroView {
         System.out.println("2. Listar Livros");
         System.out.println("3. Atualizar Livro");
         System.out.println("4. Remover Livro");
-        System.out.println("0. Sair");
+        System.out.println("\n0. Sair");
 
         System.out.print("Escolha uma opcão: ");
     }
@@ -20,7 +21,21 @@ public class LivroView {
                 return Integer.parseInt(scanner.nextLine());
             }
 
-            System.out.println("Favor inserir um número");
+            System.out.println("Favor inserir um número inteiro");
+        }
+    }
+
+    public void exibeMensagem(String mensagem) {
+        System.out.println(mensagem);
+    }
+
+    public void exibeErro(String mensagemErro) {
+        System.out.println("ERRO: " + mensagemErro);
+    }
+
+    public void exibeListaLivros(ArrayList<Livro> livros) {
+        for (Livro livro : livros) {
+            System.out.println(livro.toString());
         }
     }
 
@@ -40,8 +55,8 @@ public class LivroView {
                 }
 
                 System.out.println("IDs menores que 1 são inválidos");
-            } catch (Exception e) {
-                System.out.println("Digite um número inteiro maior que 0");
+            } catch (NumberFormatException e) {
+                System.out.println("Digite um número inteiro");
             }
         }
     }
@@ -71,7 +86,7 @@ public class LivroView {
 
             try {
                 return Short.parseShort(anoPublicacao);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Digite um número inteiro");
             }
         }
@@ -124,35 +139,10 @@ public class LivroView {
                     return exemplares;
                 }
 
-                System.out.println("Não é possível registrar 0 ou menos exemplares");
-            } catch (Exception e) {
-                System.out.println("Digite um número inteiro maior que 0");
+                System.out.println("Não é possível registrar menos que 1 exemplar");
+            } catch (NumberFormatException e) {
+                System.out.println("Digite um número inteiro");
             }
         }
     }
-
-    /*
-    public static void atualizarLivro() {
-        System.out.print("ID do livro para atualizar: ");
-        int id = Integer.parseInt(scanner.nextLine());
-
-        System.out.print("Novo título: ");
-        String titulo = scanner.nextLine();
-
-        System.out.print("Novo ano de publicacao: ");
-        int ano = Integer.parseInt(scanner.nextLine());
-
-        System.out.print("Novo ISBN: ");
-        String ISBN = scanner.nextLine();
-
-        System.out.print("Novas categorias (separadas por vírgula): ");
-        String[] categorias = scanner.nextLine().split(",");
-
-        System.out.print("Nova quantidade de exemplares: ");
-        int qtd = Integer.parseInt(scanner.nextLine());
-
-        controller.atualizarLivro(id, titulo, ano, ISBN, categorias, qtd);
-        System.out.println("Livro atualizado com sucesso!");
-    }
-    */
 }

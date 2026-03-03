@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class LivroController {
     private LivroDAO dao;
@@ -8,9 +9,10 @@ public class LivroController {
         try {
             this.dao = new LivroDAO();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getLocalizedMessage());
             System.exit(1);
         }
+
         this.view = new LivroView();
     }
 
@@ -65,25 +67,16 @@ public class LivroController {
     }
 
     public void listaLivros() {
-        try {
-            this.dao.listar();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void removeLivro() {
-        short id = this.view.getId();
+        ArrayList<Livro> livros;
 
         try {
-            if (!this.dao.encontraLivro(id)) {
-                // refatorar, mensagem não deve ser resposabilidade
-                // do controller
-                System.out.println("Livro não encontrado");
-                return;
+            livros = this.dao.listar();
+
+            if (livros.isEmpty()) {
+                this.view.exibeMensagem("Lista de livros é vazia!");
+            } else {
+                this.view.exibeListaLivros(livros);
             }
-            
-            this.dao.deletar();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,16 +87,27 @@ public class LivroController {
         
         try {
             if (!this.dao.encontraLivro(id)) {
-                // refatorar, mensagem não deve ser resposabilidade
-                // do controller
-                System.out.println("Livro não encontrado");
-                return;
+                throw new RuntimeException("Livro não encontrado");
             }
 
             Livro novoLivro = this.criaLivro();
             this.dao.atualizar(novoLivro);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void removeLivro() {
+        short id = this.view.getId();
+
+        try {
+            if (!this.dao.encontraLivro(id)) {
+                throw new RuntimeException("Livro não encontrado");
+            }
+            
+            this.dao.deletar();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
     }
     

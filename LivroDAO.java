@@ -1,14 +1,15 @@
 import java.io.*;
+import java.util.ArrayList;
 
 public class LivroDAO {
     private String nomeArquivo = "livros.dat";
     private RandomAccessFile raf;
 
-    private short ultimoId;
-    private short numRegistros;
-    private short numRegistrosDeletados;
-    private long bytePrimeiraLapide;
-    private static short TAMANHO_CABECALHO = 16;
+    public short ultimoId;
+    public short numRegistros;
+    public short numRegistrosDeletados;
+    public long bytePrimeiraLapide;
+    public short TAMANHO_CABECALHO = 16;
 
     LivroDAO() throws IOException {
         this.inicializaArquivo();
@@ -53,11 +54,10 @@ public class LivroDAO {
         this.escreveDadosLivro(livro);
     }
 
-    // refatorar, DAO não deve conter printagem, retornar lista de livros
-    public void listar() throws IOException {
+    public ArrayList<Livro> listar() throws IOException {
         this.raf.seek(TAMANHO_CABECALHO);
 
-        Livro livro;
+        ArrayList<Livro> listaLivro = new ArrayList<Livro>(this.numRegistros);
         short tamRegistro;
 
         for (int i = 0; i < this.numRegistros; ++i) {
@@ -68,10 +68,11 @@ public class LivroDAO {
             tamRegistro = this.raf.readShort();
             byte[] buffer = new byte[tamRegistro];
             this.raf.readFully(buffer);
-            livro = Livro.fromBytes(buffer);
 
-            System.out.println(livro.toString());
+            listaLivro.add(Livro.fromBytes(buffer));
         }
+
+        return listaLivro;
     }
 
     public void atualizar(Livro livro) throws IOException {
@@ -215,7 +216,7 @@ public class LivroDAO {
         this.raf.writeChar(' ');
 
         // Caso não seja uma escrita de final de arquivo, ou seja, se
-        // estivermos sobrescrevendo um registro, manter o a informação do
+        // estivermos sobrescrevendo um registro, manter a informação do
         // tamanho original para futuras navegações
         if (this.raf.getFilePointer() != this.raf.length()) {
             long endereco = this.raf.getFilePointer();

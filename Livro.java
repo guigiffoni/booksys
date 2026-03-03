@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class Livro {
+public class Livro implements ModelInterface<Livro> {
     // atributos
     private short id;
     private String titulo;
@@ -114,7 +114,7 @@ public class Livro {
 
     public void setId(short id) {
         if (id <= 0) {
-            throw new RuntimeException("ID não pode ser menor que 1");
+            throw new IllegalArgumentException("ID não pode ser menor que 1");
         }
 
         this.id = id;
@@ -158,7 +158,7 @@ public class Livro {
 
     public void setCategorias(String[] categorias) {
         if (categorias == null || categorias.length < 1) {
-            throw new java.lang.RuntimeException("Deve haver ao menos uma categoria");
+            throw new IllegalArgumentException("Deve haver ao menos uma categoria");
         }
         
         this.categorias = categorias;
@@ -170,7 +170,7 @@ public class Livro {
 
     public void setQuantidade(short quantidade) {
         if (quantidade < 0) {
-            throw new RuntimeException("Quantidade não pode ser negativa");
+            throw new IllegalArgumentException("Quantidade não pode ser negativa");
         }
 
         this.quantidade = quantidade;
