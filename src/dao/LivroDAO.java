@@ -1,8 +1,11 @@
+package src.dao;
+
 import java.io.*;
 import java.util.ArrayList;
+import src.model.Livro;
 
 public class LivroDAO {
-    private String nomeArquivo = "livros.dat";
+    private final String nomeArquivo = "data/livros.dat";
     private RandomAccessFile raf;
 
     public short ultimoId;
@@ -11,7 +14,7 @@ public class LivroDAO {
     public long bytePrimeiraLapide;
     public short TAMANHO_CABECALHO = 16;
 
-    LivroDAO() throws IOException {
+    public LivroDAO() throws IOException {
         this.inicializaArquivo();
     }
 

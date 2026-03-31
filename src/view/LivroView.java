@@ -1,3 +1,6 @@
+package src.view;
+import src.model.Livro;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 

@@ -4,4 +4,3 @@ INT id_usuario
 STRING data_emprestimo
 STRING data_devolucao
 BOOL devolvido
-FLOAT multa

@@ -1,3 +1,6 @@
+package src.model;
+import src.util.ModelInterface;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -52,12 +55,12 @@ public class Livro implements ModelInterface<Livro> {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
         
-        // lapide
         dos.writeShort(id);
         dos.writeUTF(titulo);
         dos.writeShort(anoPublicacao);
         dos.writeUTF(ISBN);
         dos.write(categorias.length);
+
         for (String categoria : categorias) {
             dos.writeUTF(categoria);
         }
@@ -94,14 +97,15 @@ public class Livro implements ModelInterface<Livro> {
     }
 
     public int getTamanhoEmBytes() {
+        // tamanho inicial:
         // id + anoPublicacao + quantidade + numCategorias + ISBN
         int tamanho = 2 * 3 + 1 + 15;
 
         // +2 bytes para tamanho da string
-        tamanho += titulo.getBytes(StandardCharsets.UTF_8).length + 2;
+        tamanho += titulo.getBytes(ModelInterface.charset).length + 2;
         for (String categoria : this.categorias) {
             // +2 bytes para tamanho da string
-            tamanho += categoria.getBytes(StandardCharsets.UTF_8).length + 2;
+            tamanho += categoria.getBytes(ModelInterface.charset).length + 2;
         }
 
         return tamanho;
@@ -113,7 +117,7 @@ public class Livro implements ModelInterface<Livro> {
     }
 
     public void setId(short id) {
-        if (id <= 0) {
+        if (id < 1) {
             throw new IllegalArgumentException("ID não pode ser menor que 1");
         }
 
