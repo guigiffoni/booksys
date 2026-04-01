@@ -6,9 +6,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import src.util.ModelInterface;
+import src.util.Registro;
 
-public class Usuario implements ModelInterface<Usuario> {
+public class Usuario implements Registro {
     private short id;
     private short diasBloqueado;
     private byte nivelPermissao;
@@ -110,13 +110,13 @@ public class Usuario implements ModelInterface<Usuario> {
         // id + diasBloqueado + nivelPermissao + dataNascimento + numTelefones
         int tamanho = 2 * 2 + 1 + 8 + 1;
 
-        tamanho += this.nome.getBytes(ModelInterface.charset).length + 2;
-        tamanho += this.email.getBytes(ModelInterface.charset).length + 2;
-        tamanho += this.senha.getBytes(ModelInterface.charset).length + 2;
+        tamanho += this.nome.getBytes(Registro.charset).length + 2;
+        tamanho += this.email.getBytes(Registro.charset).length + 2;
+        tamanho += this.senha.getBytes(Registro.charset).length + 2;
 
         for (String telefone : this.telefones) {
             // +2 bytes para tamanho da string
-            tamanho += telefone.getBytes(ModelInterface.charset).length + 2;
+            tamanho += telefone.getBytes(Registro.charset).length + 2;
         }
 
         return tamanho;

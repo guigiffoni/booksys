@@ -1,18 +1,26 @@
 package src.controller;
-import src.dao.LivroDAO;
-import src.view.LivroView;
+import src.dao.DaoGenerico;
 import src.model.Livro;
+import src.view.LivroView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class LivroController {
-    private LivroDAO dao;
+    private DaoGenerico<Livro> dao;
     private LivroView view;
 
     public LivroController() {
         try {
-            this.dao = new LivroDAO();
+            this.dao = new DaoGenerico<>("livros.dat", arg0 -> {
+                try {
+                    return Livro.fromBytes(arg0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            });
         } catch (IOException e) {
             System.err.println(e.getLocalizedMessage());
             System.exit(1);
@@ -91,7 +99,7 @@ public class LivroController {
         short id = this.view.getId();
         
         try {
-            if (!this.dao.encontraLivro(id)) {
+            if (!this.dao.encontraRegistro(id)) {
                 throw new RuntimeException("Livro não encontrado");
             }
 
@@ -106,7 +114,7 @@ public class LivroController {
         short id = this.view.getId();
 
         try {
-            if (!this.dao.encontraLivro(id)) {
+            if (!this.dao.encontraRegistro(id)) {
                 throw new RuntimeException("Livro não encontrado");
             }
             

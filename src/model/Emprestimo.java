@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 import src.util.FormatoData;
-import src.util.ModelInterface;
+import src.util.Registro;
 
-public class Emprestimo implements ModelInterface<Emprestimo> {
+public class Emprestimo implements Registro {
     private short id;
     private short idLivro;
     private short idUsuario;

@@ -1,14 +1,13 @@
 package src.model;
-import src.util.ModelInterface;
+import src.util.Registro;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException; 
 
-public class Livro implements ModelInterface<Livro> {
+public class Livro implements Registro {
     // atributos
     private short id;
     private String titulo;
@@ -102,10 +101,10 @@ public class Livro implements ModelInterface<Livro> {
         int tamanho = 2 * 3 + 1 + 15;
 
         // +2 bytes para tamanho da string
-        tamanho += titulo.getBytes(ModelInterface.charset).length + 2;
+        tamanho += titulo.getBytes(Registro.charset).length + 2;
         for (String categoria : this.categorias) {
             // +2 bytes para tamanho da string
-            tamanho += categoria.getBytes(ModelInterface.charset).length + 2;
+            tamanho += categoria.getBytes(Registro.charset).length + 2;
         }
 
         return tamanho;

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public interface ModelInterface<T extends ModelInterface<T>> {
+public interface Registro {
     short id = 0;
     Charset charset = StandardCharsets.UTF_8;
 

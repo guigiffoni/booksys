@@ -6,9 +6,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import src.util.ModelInterface;
+import src.util.Registro;
 
-public class Autor implements ModelInterface<Autor> {
+public class Autor implements Registro {
     private short id;
     private String nome;
     // formato: YYYYMMDD
@@ -66,9 +66,9 @@ public class Autor implements ModelInterface<Autor> {
         // tamanho inicial: 2 bytes para ID
         int tamanho = 2;
 
-        tamanho += this.nome.getBytes(ModelInterface.charset).length + 2;
-        tamanho += this.dataNascimento.getBytes(ModelInterface.charset).length + 2;
-        tamanho += this.nacionalidade.getBytes(ModelInterface.charset).length + 2;
+        tamanho += this.nome.getBytes(Registro.charset).length + 2;
+        tamanho += this.dataNascimento.getBytes(Registro.charset).length + 2;
+        tamanho += this.nacionalidade.getBytes(Registro.charset).length + 2;
 
         return tamanho;
     }
