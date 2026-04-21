@@ -1,12 +1,8 @@
 package src.view;
+
 import src.model.Livro;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-
-public class LivroView {
-    private static Scanner scanner = new Scanner(System.in);
-
+public class LivroView extends ViewGenerico<Livro> {
     public void printaMenuInicial() {
         System.out.println("---- MENU ---");
         System.out.println("1. Cadastrar Livro");
@@ -16,30 +12,6 @@ public class LivroView {
         System.out.println("\n0. Sair");
 
         System.out.print("Escolha uma opcão: ");
-    }
-
-    public int getOpcao() {
-        while (true) {
-            if (scanner.hasNextInt()) {
-                return Integer.parseInt(scanner.nextLine());
-            }
-
-            System.out.println("Favor inserir um número inteiro");
-        }
-    }
-
-    public void exibeMensagem(String mensagem) {
-        System.out.println(mensagem);
-    }
-
-    public void exibeErro(String mensagemErro) {
-        System.out.println("ERRO: " + mensagemErro);
-    }
-
-    public void exibeListaLivros(ArrayList<Livro> livros) {
-        for (Livro livro : livros) {
-            System.out.println(livro.toString());
-        }
     }
 
     public short getId() {

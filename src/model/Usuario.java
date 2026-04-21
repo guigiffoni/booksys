@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import src.util.JsonHelper;
 import src.util.Registro;
 
 public class Usuario implements Registro {
@@ -74,34 +75,39 @@ public class Usuario implements Registro {
         return baos.toByteArray();
     }
 
-    public static Usuario fromBytes(byte[] dados) throws IOException {
+    public static Usuario fromBytes(byte[] dados) {
         ByteArrayInputStream bais = new ByteArrayInputStream(dados);
         DataInputStream dis = new DataInputStream(bais);
 
-        short id = dis.readShort();
-        short diasBloqueado = dis.readShort();
-        byte nivelPermissao = dis.readByte();
-        String nome = dis.readUTF();
-        String dataNascimento = dis.readUTF();
-        String email = dis.readUTF();
-        String senha = dis.readUTF();
-
-        int numTelefones = dis.readShort();
-        String[] telefones = new String[numTelefones];
-        for (int i = 0; i < numTelefones; i++) {
-            telefones[i] = dis.readUTF();
+        try {
+            short id = dis.readShort();
+            short diasBloqueado = dis.readShort();
+            byte nivelPermissao = dis.readByte();
+            String nome = dis.readUTF();
+            String dataNascimento = dis.readUTF();
+            String email = dis.readUTF();
+            String senha = dis.readUTF();
+    
+            int numTelefones = dis.readShort();
+            String[] telefones = new String[numTelefones];
+            for (int i = 0; i < numTelefones; i++) {
+                telefones[i] = dis.readUTF();
+            }
+    
+            return new Usuario(
+                id,
+                diasBloqueado,
+                nivelPermissao,
+                nome,
+                dataNascimento,
+                email,
+                senha,
+                telefones
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-
-        return new Usuario(
-            id,
-            diasBloqueado,
-            nivelPermissao,
-            nome,
-            dataNascimento,
-            email,
-            senha,
-            telefones
-        );
     }
 
     @Override
@@ -210,5 +216,26 @@ public class Usuario implements Registro {
 
     public void setTelefones(String[] telefones) {
         this.telefones = telefones;
+    }
+
+    public String toJson() {
+        String inicial = String.format(
+            "{\"id\":%d,\"diasBloqueado\":%d,\"nivelPermissao\":%d,\"nome\":\"%s\",\"dataNascimento\":\"%s\",\"email\":\"%s\",\"senha\":\"%s\",\"telefones\":}",
+            this.getId(),
+            this.getDiasBloqueado(),
+            this.getNivelPermissao(),
+            this.getNome(),
+            this.getDataNascimento(),
+            this.getEmail(),
+            this.getSenha()
+        );
+
+        StringBuilder str = new StringBuilder();
+
+        str.append(inicial);
+        str.append(JsonHelper.arrayToJson(this.getTelefones()));
+        str.append('}');
+
+        return str.toString();
     }
 }

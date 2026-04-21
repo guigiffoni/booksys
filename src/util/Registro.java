@@ -9,6 +9,7 @@ public interface Registro {
     Charset charset = StandardCharsets.UTF_8;
 
     byte[] toBytes() throws IOException;
+    String toJson();
     int getTamanhoEmBytes();
     String toString();
     short getId();

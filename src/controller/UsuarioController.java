@@ -1,16 +1,16 @@
 package src.controller;
 
-import src.dao.DaoGenerico;
-import src.model.Livro;
-
 import java.io.IOException;
 
-public class LivroController extends ControllerGenerico<Livro> {
+import src.dao.DaoGenerico;
+import src.model.Usuario;
+
+public class UsuarioController extends ControllerGenerico<Usuario> {
     private static final String nomeArquivo = "livros.dat";
 
-    public LivroController() {
+    public UsuarioController() {
         try {
-            super.dao = new DaoGenerico<Livro>(nomeArquivo, Livro::fromBytes);
+            super.dao = new DaoGenerico<Usuario>(nomeArquivo, Usuario::fromBytes);
         } catch (IOException e) {
             System.err.println(e.getLocalizedMessage());
             System.exit(1);

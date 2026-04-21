@@ -148,39 +148,42 @@ public class DaoGenerico<T extends Registro> {
         this.raf.writeChar('*');
     }
 
-
-
-    public boolean encontraRegistro(short id) throws IOException {
-        this.raf.seek(TAMANHO_CABECALHO);
-
-        long tamArquivo = this.raf.length();
-        long inicioRegistro = this.raf.getFilePointer();
-
-        short tamRegistro;
-        short idRegistro;
-
-        while (true) {
-            this.avancaEnquanto('*');
-
-            inicioRegistro = this.raf.getFilePointer();
-
-            if (inicioRegistro == tamArquivo) {
-                break;
+    public boolean encontraRegistro(short id) {
+        try {
+            this.raf.seek(TAMANHO_CABECALHO);
+    
+            long tamArquivo = this.raf.length();
+            long inicioRegistro = this.raf.getFilePointer();
+    
+            short tamRegistro;
+            short idRegistro;
+    
+            while (true) {
+                this.avancaEnquanto('*');
+    
+                inicioRegistro = this.raf.getFilePointer();
+    
+                if (inicioRegistro == tamArquivo) {
+                    break;
+                }
+                
+                this.raf.readChar();
+                tamRegistro = this.raf.readShort();
+                idRegistro = this.raf.readShort();
+    
+                if (idRegistro == id) {
+                    this.raf.seek(inicioRegistro);
+                    return true;
+                }
+    
+                this.raf.seek(inicioRegistro + tamRegistro + 4);
             }
-            
-            this.raf.readChar();
-            tamRegistro = this.raf.readShort();
-            idRegistro = this.raf.readShort();
-
-            if (idRegistro == id) {
-                this.raf.seek(inicioRegistro);
-                return true;
-            }
-
-            this.raf.seek(inicioRegistro + tamRegistro + 4);
+    
+            return false;
+        } catch (IOException e) {
+            System.err.println(e.getLocalizedMessage());
+            return false;
         }
-
-        return false;
     }
 
     public void inserir(T instancia) throws IOException {
@@ -194,22 +197,27 @@ public class DaoGenerico<T extends Registro> {
         this.escreveDados(instancia);
     }
 
+    public T leRegistroAtual() throws IOException {
+        // pula a lápide
+        this.raf.seek(this.raf.getFilePointer() + 2);
+
+        short tamRegistro = this.raf.readShort();
+        byte[] buffer = new byte[tamRegistro];
+
+        this.raf.readFully(buffer);
+
+        return fromBytes.apply(buffer);
+    }
+
     public ArrayList<T> listar() throws IOException {
         this.raf.seek(TAMANHO_CABECALHO);
 
         ArrayList<T> listaInstancia = new ArrayList<T>(this.numRegistros);
-        short tamRegistro;
 
         for (int i = 0; i < this.numRegistros; ++i) {
             this.avancaEnquanto('*');
-            // +2 para desconsiderar a lápide
-            this.raf.seek(this.raf.getFilePointer() + 2);
 
-            tamRegistro = this.raf.readShort();
-            byte[] buffer = new byte[tamRegistro];
-            this.raf.readFully(buffer);
-
-            listaInstancia.add(fromBytes.apply(buffer));
+            listaInstancia.add(this.leRegistroAtual());
         }
 
         return listaInstancia;

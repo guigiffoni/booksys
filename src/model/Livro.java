@@ -1,4 +1,5 @@
 package src.model;
+import src.util.JsonHelper;
 import src.util.Registro;
 
 import java.io.ByteArrayInputStream;
@@ -68,31 +69,36 @@ public class Livro implements Registro {
         return baos.toByteArray();
     }
 
-    public static Livro fromBytes(byte[] dados) throws IOException {
+    public static Livro fromBytes(byte[] dados) {
         ByteArrayInputStream bais = new ByteArrayInputStream(dados);
         DataInputStream dis = new DataInputStream(bais);
 
-        short id = dis.readShort();
-        String titulo = dis.readUTF();
-        short anoPublicacao = dis.readShort();
-        String isbn = dis.readUTF();
+        try {
+            short id = dis.readShort();
+            String titulo = dis.readUTF();
+            short anoPublicacao = dis.readShort();
+            String isbn = dis.readUTF();
+    
+            int numCategorias = dis.read();
+            String[] categorias = new String[numCategorias];
+            for (short i = 0; i < numCategorias; ++i) {
+                categorias[i] = dis.readUTF();
+            }
+    
+            short quantidade = dis.readShort();
 
-        int numCategorias = dis.read();
-        String[] categorias = new String[numCategorias];
-        for (short i = 0; i < numCategorias; ++i) {
-            categorias[i] = dis.readUTF();
+            return new Livro(
+                id, 
+                titulo, 
+                anoPublicacao, 
+                isbn, 
+                categorias, 
+                quantidade
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-
-        short quantidade = dis.readShort();
-
-        return new Livro(
-            id, 
-            titulo, 
-            anoPublicacao, 
-            isbn, 
-            categorias, 
-            quantidade
-        );
     }
 
     public int getTamanhoEmBytes() {
@@ -190,5 +196,23 @@ public class Livro implements Registro {
             String.join(", ", this.getCategorias()),
             this.getQuantidade()
         );
+    }
+
+    public String toJson() {
+        StringBuilder json = new StringBuilder(
+            String.format(
+                "{\"id\":%d,\"titulo\":\"%s\",\"ano_publicacao\":%d,\"isbn\":\"%s\",\"quantidade\":%d,\"categorias\":",
+                this.getId(),
+                this.getTitulo(),
+                this.getAnoPublicacao(),
+                this.getISBN(),
+                this.getQuantidade()
+            )
+        );
+
+        json.append(JsonHelper.arrayToJson(this.getCategorias()));
+        json.append('}');
+
+        return json.toString();
     }
 }

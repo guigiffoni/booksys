@@ -49,16 +49,21 @@ public class Autor implements Registro {
         return baos.toByteArray();
     }
 
-    public static Autor fromBytes(byte[] dados) throws IOException {
+    public static Autor fromBytes(byte[] dados) {
         ByteArrayInputStream bais = new ByteArrayInputStream(dados);
         DataInputStream dis = new DataInputStream(bais);
 
-        short id = dis.readShort();
-        String nome = dis.readUTF();
-        String dataNascimento = dis.readUTF();
-        String nacionalidade = dis.readUTF();
-
-        return new Autor(id, nome, dataNascimento, nacionalidade);
+        try {
+            short id = dis.readShort();
+            String nome = dis.readUTF();
+            String dataNascimento = dis.readUTF();
+            String nacionalidade = dis.readUTF();
+    
+            return new Autor(id, nome, dataNascimento, nacionalidade);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -121,5 +126,11 @@ public class Autor implements Registro {
         }
 
         this.nacionalidade = nacionalidade;
+    }
+
+    public String toJson() {
+        return String.format(
+            "{\"id\":%d,\"nome\":\"%s\",\"dataNascimento\":\"%s\",\"nacionalidade\":\"%s\"}"
+        );
     }
 }

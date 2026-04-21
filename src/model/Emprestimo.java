@@ -15,7 +15,7 @@ public class Emprestimo implements Registro {
     private short idLivro;
     private short idUsuario;
     // false: não foi devolvido | true: devolvido
-    private boolean statusDevolucao;
+    private boolean devolvido;
     // formato: YYYYMMDD
     private String dataEmprestimo;
     // formato: YYYYMMDD
@@ -30,7 +30,7 @@ public class Emprestimo implements Registro {
     public Emprestimo(short idLivro, short idUsuario) {
         this.setIdLivro(idLivro);
         this.setIdUsuario(idUsuario);
-        this.statusDevolucao = false;
+        this.devolvido = false;
 
         LocalDate dataAtual = LocalDate.now();
         this.dataEmprestimo = dataAtual.format(FormatoData.ANO_MES_DIA);
@@ -42,13 +42,13 @@ public class Emprestimo implements Registro {
             short id,
             short idLivro,
             short idUsuario,
-            boolean statusDevolucao,
+            boolean devolvido,
             String dataEmprestimo,
             String dataDevolucao) {
         this.setId(id);
         this.setIdLivro(idLivro);
         this.setIdUsuario(idUsuario);
-        this.setStatusDevolucao(statusDevolucao);
+        this.setStatusDevolucao(devolvido);
         this.setDataEmprestimo(dataEmprestimo);
         this.setDataDevolucao(dataDevolucao);
     }
@@ -61,37 +61,43 @@ public class Emprestimo implements Registro {
         dos.writeShort(id);
         dos.writeShort(idLivro);
         dos.writeShort(idUsuario);
-        dos.writeBoolean(statusDevolucao);
+        dos.writeBoolean(devolvido);
         dos.writeUTF(dataEmprestimo);
         dos.writeUTF(dataDevolucao);
 
         return baos.toByteArray();
     }
 
-    public static Emprestimo fromBytes(byte[] dados) throws IOException {
+    public static Emprestimo fromBytes(byte[] dados) {
         ByteArrayInputStream bais = new ByteArrayInputStream(dados);
         DataInputStream dis = new DataInputStream(bais);
 
-        short id = dis.readShort();
-        short idLivro = dis.readShort();
-        short idUsuario = dis.readShort();
-        boolean statusDevolucao = dis.readBoolean();
-        String dataEmprestimo = dis.readUTF();
-        String dataDevolucao = dis.readUTF();
+        try {
+            short id = dis.readShort();
+            short idLivro = dis.readShort();
+            short idUsuario = dis.readShort();
+            boolean devolvido = dis.readBoolean();
+            String dataEmprestimo = dis.readUTF();
+            String dataDevolucao = dis.readUTF();
 
-        return new Emprestimo(
+            return new Emprestimo(
                 id,
                 idLivro,
                 idUsuario,
-                statusDevolucao,
+                devolvido,
                 dataEmprestimo,
-                dataDevolucao);
+                dataDevolucao
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public int getTamanhoEmBytes() {
         // tamanho inicial e fixo é definido por:
-        // id + idLivro + idUsuario + statusDevolucao + dataEmprestimo + dataDevolucao
+        // id + idLivro + idUsuario + devolvido + dataEmprestimo + dataDevolucao
         return 2 * 3 + 1 + 8 * 2;
     }
 
@@ -133,12 +139,12 @@ public class Emprestimo implements Registro {
         this.idUsuario = idUsuario;
     }
 
-    public boolean getStatusDevolucao() {
-        return this.statusDevolucao;
+    public boolean getDevolvido() {
+        return this.devolvido;
     }
 
-    public void setStatusDevolucao(boolean statusDevolucao) {
-        this.statusDevolucao = statusDevolucao;
+    public void setStatusDevolucao(boolean devolvido) {
+        this.devolvido = devolvido;
     }
 
     public String getDataEmprestimo() {
@@ -168,12 +174,25 @@ public class Emprestimo implements Registro {
     @Override
     public String toString() {
         return String.format(
-                "\t%d |\t%s |\t%d |\t%s |\t%s |\t%d",
-                this.getId(),
-                this.getIdLivro(),
-                this.getIdUsuario(),
-                this.getStatusDevolucao(),
-                this.getDataEmprestimo(),
-                this.getDataDevolucao());
+            "\t%d |\t%s |\t%d |\t%s |\t%s |\t%d",
+            this.getId(),
+            this.getIdLivro(),
+            this.getIdUsuario(),
+            this.getDevolvido(),
+            this.getDataEmprestimo(),
+            this.getDataDevolucao()
+        );
+    }
+
+    public String toJson() {
+        return String.format(
+            "{\"id\":%d,\"idLivro\":%d,\"idUsuario\":%d,\"devolvido\":\"%s\",\"dataEmprestimo\":\"%s\",\"dataDevolucao\":\"%s\"}",
+            this.getId(),
+            this.getIdLivro(),
+            this.getIdUsuario(),
+            this.getDevolvido(),
+            this.getDataEmprestimo(),
+            this.getDataDevolucao()
+        );
     }
 }
