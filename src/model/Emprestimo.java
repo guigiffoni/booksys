@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.HashMap;
 
 import src.util.FormatoData;
 import src.util.Registro;
@@ -92,6 +93,13 @@ public class Emprestimo implements Registro {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Emprestimo formToInstance(HashMap<String, Object> formData) {
+        return new Emprestimo(
+            Short.parseShort((String) formData.get("idLivro")),
+            Short.parseShort((String) formData.get("idUsuario"))
+        );
     }
 
     @Override

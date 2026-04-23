@@ -5,8 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-import src.util.JsonHelper;
+import src.util.RequestHelper;
 import src.util.Registro;
 
 public class Usuario implements Registro {
@@ -108,6 +110,20 @@ public class Usuario implements Registro {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Usuario formToInstance(HashMap<String, Object> formData) {
+        @SuppressWarnings("unchecked")
+        ArrayList<String> telefones = (ArrayList<String>) formData.get("telefones");
+
+        return new Usuario(
+            Byte.parseByte((String) formData.get("nivelPermissao")),
+            (String) formData.get("nome"),
+            (String) formData.get("dataNascimento"),
+            (String) formData.get("email"),
+            (String) formData.get("senha"),
+            telefones.toArray(new String[0])
+        );
     }
 
     @Override
@@ -233,7 +249,7 @@ public class Usuario implements Registro {
         StringBuilder str = new StringBuilder();
 
         str.append(inicial);
-        str.append(JsonHelper.arrayToJson(this.getTelefones()));
+        str.append(RequestHelper.arrayToJson(this.getTelefones()));
         str.append('}');
 
         return str.toString();

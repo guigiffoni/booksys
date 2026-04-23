@@ -1,12 +1,14 @@
 package src.model;
-import src.util.JsonHelper;
+import src.util.RequestHelper;
 import src.util.Registro;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException; 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap; 
 
 public class Livro implements Registro {
     // atributos
@@ -99,6 +101,19 @@ public class Livro implements Registro {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Livro formToInstance(HashMap<String, Object> formData) {
+        @SuppressWarnings("unchecked")
+        ArrayList<String> categorias = (ArrayList<String>) formData.get("categorias");
+        
+        return new Livro(
+            (String) formData.get("titulo"),
+            Short.parseShort((String) formData.get("anoPublicacao")),
+            (String) formData.get("ISBN"),
+            categorias.toArray(new String[0]),
+            Short.parseShort((String) formData.get("quantidade"))
+        );
     }
 
     public int getTamanhoEmBytes() {
@@ -210,7 +225,7 @@ public class Livro implements Registro {
             )
         );
 
-        json.append(JsonHelper.arrayToJson(this.getCategorias()));
+        json.append(RequestHelper.arrayToJson(this.getCategorias()));
         json.append('}');
 
         return json.toString();

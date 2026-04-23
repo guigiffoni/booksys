@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 import src.util.Registro;
 
@@ -64,6 +65,14 @@ public class Autor implements Registro {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Autor formToInstance(HashMap<String, Object> formData) {
+        return new Autor(
+            (String) formData.get("nome"),
+            (String) formData.get("dataNascimento"),
+            (String) formData.get("nacionalidade")
+        );
     }
 
     @Override
@@ -130,7 +139,11 @@ public class Autor implements Registro {
 
     public String toJson() {
         return String.format(
-            "{\"id\":%d,\"nome\":\"%s\",\"dataNascimento\":\"%s\",\"nacionalidade\":\"%s\"}"
+            "{\"id\":%d,\"nome\":\"%s\",\"dataNascimento\":\"%s\",\"nacionalidade\":\"%s\"}",
+            this.getId(),
+            this.getNome(),
+            this.getDataNascimento(),
+            this.getNacionalidade()
         );
     }
 }

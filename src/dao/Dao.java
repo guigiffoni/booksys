@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.Function;
 
 import src.util.Registro;
 
-public class DaoGenerico<T extends Registro> {
+public class Dao<T extends Registro> {
     private static final String path = "data/";
     private String nomeArquivo;
     private RandomAccessFile raf;
@@ -20,18 +21,24 @@ public class DaoGenerico<T extends Registro> {
     public static final short TAMANHO_CABECALHO = 16;
 
     private Function<byte[], T> fromBytes;
+    private Function<HashMap<String, Object>, T> formToInstance;
 
-    public DaoGenerico(String nomeArquivo, Function<byte[], T> fromBytes) throws IOException {
+    public Dao(
+        String nomeArquivo, 
+        Function<byte[], T> fromBytes,
+        Function<HashMap<String, Object>, T> formToInstance
+    ) throws IOException {
         this.nomeArquivo = nomeArquivo;
         this.fromBytes = fromBytes;
+        this.formToInstance = formToInstance;
         inicializaArquivo();
     }
 
     private void inicializaArquivo() throws IOException {
-        File arquivo = new File(DaoGenerico.path + this.nomeArquivo);
+        File arquivo = new File(Dao.path + this.nomeArquivo);
         boolean arquivoPresente = arquivo.exists();
 
-        this.raf = new RandomAccessFile(DaoGenerico.path + this.nomeArquivo, "rw");
+        this.raf = new RandomAccessFile(Dao.path + this.nomeArquivo, "rw");
         this.raf.seek(0);
 
         if (arquivoPresente) {
@@ -148,7 +155,7 @@ public class DaoGenerico<T extends Registro> {
         this.raf.writeChar('*');
     }
 
-    public boolean encontraRegistro(short id) {
+    public boolean seekRegistro(short id) {
         try {
             this.raf.seek(TAMANHO_CABECALHO);
     
@@ -186,15 +193,12 @@ public class DaoGenerico<T extends Registro> {
         }
     }
 
-    public void inserir(T instancia) throws IOException {
-        this.seekSecaoLivre(instancia.getTamanhoEmBytes());
+    public T encontraRegistro(short id) throws IOException {
+        if (this.seekRegistro(id)) {
+            return this.leRegistroAtual();
+        }
 
-        this.ultimoId += 1;
-        this.numRegistros += 1;
-
-        instancia.setId(this.ultimoId);
-        this.atualizaCabecalho();
-        this.escreveDados(instancia);
+        return null;
     }
 
     public T leRegistroAtual() throws IOException {
@@ -207,6 +211,21 @@ public class DaoGenerico<T extends Registro> {
         this.raf.readFully(buffer);
 
         return fromBytes.apply(buffer);
+    }
+
+    public T formToInstance(HashMap<String, Object> formData) {
+        return this.formToInstance.apply(formData);
+    }
+
+    public void inserir(T instancia) throws IOException {
+        this.seekSecaoLivre(instancia.getTamanhoEmBytes());
+
+        this.ultimoId += 1;
+        this.numRegistros += 1;
+
+        instancia.setId(this.ultimoId);
+        this.atualizaCabecalho();
+        this.escreveDados(instancia);
     }
 
     public ArrayList<T> listar() throws IOException {
