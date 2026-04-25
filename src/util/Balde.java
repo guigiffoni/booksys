@@ -1,8 +1,10 @@
+package src.util;
+
 public class Balde {
     private int profundidade;
-    private int numRegistros = 0;
-    private final int numElementos = 3;
-    private final int[] chaves = new int[this.numElementos];
+    private int numChaves = 0;
+    private static final int maxChaves = 3;
+    public int[] chaves = new int[Balde.maxChaves];
 
     Balde() {
         this(1);
@@ -11,43 +13,51 @@ public class Balde {
     Balde(int profundidadeInicial) {
         this.profundidade = profundidadeInicial;
         
-        for (int i = 0; i < numElementos; i++) {
+        for (int i = 0; i < maxChaves; i++) {
             this.chaves[i] = -1;
         }
     }
 
     boolean isCheio() {
-        if (this.numElementos != this.numRegistros) {
-            return false;
-        }
-
-        return true;
+        return Balde.maxChaves >= this.numChaves;            
     }
 
     int getProfundidade() {
         return this.profundidade;
     }
 
-    void aumentaProfundidade() {
-        this.profundidade++;
+    void setProfundidade(int novaProfundidade) {
+        this.profundidade = novaProfundidade;
     }
 
     void inserir(int elemento) {
         if (!this.isCheio()) {
-            this.chaves[this.numRegistros] = elemento;
-            this.numRegistros += 1;
+            this.chaves[this.numChaves] = elemento;
+            this.numChaves += 1;
         }
     }
 
     int remover() {
-        if (this.numRegistros > 0) {
-            this.numRegistros -= 1;
-            int numeroRemovido = this.chaves[this.numRegistros];
-            this.chaves[this.numRegistros] = 0;
+        if (this.numChaves > 0) {
+            this.numChaves -= 1;
+            int numeroRemovido = this.chaves[this.numChaves];
+            this.chaves[this.numChaves] = 0;
 
             return numeroRemovido;
         }
 
         return -1;
+    }
+
+    void removerTudo() {
+        for (int i = 0; i < this.maxChaves; i++) {
+            this.chaves[i] = -1;
+        }
+
+        this.numChaves = 0;
+    }
+
+    int[] getChaves() {
+        return this.chaves;
     }
 }
