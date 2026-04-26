@@ -13,13 +13,13 @@ public class Balde {
     Balde(int profundidadeInicial) {
         this.profundidade = profundidadeInicial;
         
-        for (int i = 0; i < maxChaves; i++) {
+        for (int i = 0; i < Balde.maxChaves; i++) {
             this.chaves[i] = -1;
         }
     }
 
     boolean isCheio() {
-        return Balde.maxChaves >= this.numChaves;            
+        return this.numChaves >= Balde.maxChaves;
     }
 
     int getProfundidade() {
@@ -50,7 +50,7 @@ public class Balde {
     }
 
     void removerTudo() {
-        for (int i = 0; i < this.maxChaves; i++) {
+        for (int i = 0; i < Balde.maxChaves; i++) {
             this.chaves[i] = -1;
         }
 

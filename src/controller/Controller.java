@@ -72,7 +72,7 @@ public class Controller<T extends Registro> {
 
             return true;
         }
-        
+
         return false;
     }
 

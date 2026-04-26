@@ -21,10 +21,10 @@ public class HashExtensivel {
         return k % this.getCapacidade();
     }
 
-    private Balde[] aumentaDiretorio() {
+    private void aumentaDiretorio() {
         int qtdBaldes = this.getCapacidade();
         Balde[] novosBaldes = new Balde[qtdBaldes * 2];
-        
+
         for (int i = 0; i < qtdBaldes; i++) {
             novosBaldes[i] = this.diretorio[i];
             novosBaldes[i + qtdBaldes] = this.diretorio[i];
@@ -32,8 +32,6 @@ public class HashExtensivel {
 
         this.diretorio = novosBaldes;
         this.profundidade += 1;
-
-        return novosBaldes;
     }
 
     private void recalculaHash(Balde baldeRef) {

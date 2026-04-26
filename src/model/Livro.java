@@ -106,7 +106,7 @@ public class Livro implements Registro {
     public static Livro formToInstance(HashMap<String, Object> formData) {
         @SuppressWarnings("unchecked")
         ArrayList<String> categorias = (ArrayList<String>) formData.get("categorias");
-        
+
         return new Livro(
             (String) formData.get("titulo"),
             Short.parseShort((String) formData.get("anoPublicacao")),
