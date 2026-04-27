@@ -3,562 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca - API Interface</title>
+    <title>Gerenciamento de Biblioteca - SPA</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-        }
-        body {
-            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f7fb;
-            color: #1e293b;
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            margin-bottom: 24px;
-            font-weight: 500;
-            border-bottom: 2px solid #cbd5e1;
-            padding-bottom: 12px;
-        }
-        h2 {
-            font-weight: 500;
-            font-size: 1.5rem;
-            margin: 20px 0 12px 0;
-            color: #0f172a;
-        }
-        .section {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            border: 1px solid #e2e8f0;
-        }
-        .forms-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .form-card {
-            background: #fafbfc;
-            border-radius: 12px;
-            padding: 16px;
-            flex: 1 1 240px;
-            border: 1px solid #e9edf2;
-        }
-        .form-card h3 {
-            font-weight: 500;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            color: #334155;
-        }
-        label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 4px;
-            color: #475569;
-        }
-        input, button {
-            width: 100%;
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            background: white;
-        }
-        input:focus {
-            outline: 2px solid #94a3b8;
-            border-color: transparent;
-        }
-        button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.15s;
-            margin-top: 4px;
-        }
-        button:hover {
-            background: #1d4ed8;
-        }
-        button.secondary {
-            background: #64748b;
-        }
-        button.secondary:hover {
-            background: #475569;
-        }
-        button.warning {
-            background: #b45309;
-        }
-        button.warning:hover {
-            background: #92400e;
-        }
-        .inline-group {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        .inline-group input {
-            flex: 2;
-            margin-bottom: 0;
-        }
-        .inline-group button {
-            flex: 1;
-            margin-bottom: 0;
-        }
-        .result-area {
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 16px;
-            border-radius: 12px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-            word-break: break-all;
-            margin-top: 24px;
-            max-height: 300px;
-            overflow: auto;
-        }
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .result-header span {
-            color: #94a3b8;
-        }
-        .clear-btn {
-            background: transparent;
-            color: #94a3b8;
-            border: 1px solid #475569;
-            padding: 4px 10px;
-            width: auto;
-            font-size: 0.8rem;
-        }
-        hr {
-            margin: 16px 0;
-            border: none;
-            border-top: 1px dashed #cbd5e1;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
+        header { background: #2c3e50; color: white; padding: 1rem; text-align: center; }
+        nav { display: flex; justify-content: center; background: #34495e; padding: 0.5rem; flex-wrap: wrap; }
+        nav button { margin: 0.2rem; padding: 0.5rem 1rem; border: none; background: #4a6fa5; color: white; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: background 0.2s; }
+        nav button:hover, nav button.active { background: #2c3e50; }
+        main { max-width: 960px; margin: 1rem auto; padding: 0 1rem; }
+        section { display: none; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        section.active { display: block; }
+        h2 { margin-bottom: 1rem; border-bottom: 2px solid #4a6fa5; padding-bottom: 0.3rem; }
+        .form-group { margin-bottom: 1rem; display: flex; align-items: center; flex-wrap: wrap; }
+        .form-group label { width: 160px; font-weight: bold; }
+        .form-group input, .form-group select { flex: 1; min-width: 200px; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; }
+        .form-group input[type="checkbox"] { flex: 0; min-width: auto; margin-left: 0; }
+        .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        .form-actions button { padding: 0.5rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #4a6fa5; color: white; }
+        .btn-danger { background: #c0392b; color: white; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.85rem; }
+        th { background: #ecf0f1; }
+        .filter-box { margin: 1rem 0; display: flex; gap: 0.5rem; align-items: center; }
+        .filter-box input { padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; }
+        .hidden { display: none; }
+        small { color: #888; font-size: 0.8rem; margin-left: 0.5rem; }
     </style>
 </head>
 <body>
-    <h1>📚 Gerenciamento de Biblioteca</h1>
+    <header><h1>📚 Biblioteca - Painel Único</h1></header>
+    <nav>
+        <button class="nav-btn active" data-section="autores">Autores</button>
+        <button class="nav-btn" data-section="livros">Livros</button>
+        <button class="nav-btn" data-section="usuarios">Usuários</button>
+        <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
+    </nav>
+    <main>
+        <!-- Seção Autores -->
+        <section id="autores" class="active">
+            <h2>Autor</h2>
+            <form id="form-autor">
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="autor-id" min="1" placeholder="para atualizar, informe o ID"></div>
+                <div class="form-group"><label>Nome:</label><input type="text" name="nome" required></div>
+                <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento" pattern="\d{8}" required></div>
+                <div class="form-group"><label>Nacionalidade:</label><input type="text" name="nacionalidade" required></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar</button>
+                    <button type="button" class="btn-secondary" id="btn-listar-autores">Listar Todos</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-autor">Deletar por ID</button>
+                    <button type="button" class="btn-secondary" onclick="limparFormulario('form-autor')">Limpar</button>
+                </div>
+            </form>
+            <div class="filter-box">
+                <input type="number" id="delete-id-autor" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-autor" class="btn-danger">Confirmar Exclusão</button>
+            </div>
+            <table id="tabela-autores"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Nacionalidade</th></tr></thead><tbody></tbody></table>
+        </section>
 
-    <!-- Área de resultado (exibe respostas JSON) -->
-    <div class="result-header">
-        <span>📋 Resposta da API</span>
-        <button class="clear-btn" id="clearResultBtn">Limpar</button>
-    </div>
-    <div id="resultContainer" class="result-area">
-        Clique em qualquer ação para ver a resposta aqui.
-    </div>
+        <!-- Seção Livros -->
+        <section id="livros">
+            <h2>Livro</h2>
+            <form id="form-livro">
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="livro-id" min="1" placeholder="para atualizar"></div>
+                <div class="form-group"><label>Título:</label><input type="text" name="titulo" required></div>
+                <div class="form-group"><label>Ano Publicação:</label><input type="number" name="anoPublicacao" min="0" max="2100" required></div>
+                <div class="form-group"><label>ISBN (13 dígitos):</label><input type="text" name="ISBN" pattern="\d{13}" required></div>
+                <div class="form-group"><label>Categorias (vírgula):</label><input type="text" name="categorias" placeholder="Ex: Ficção, Romance" required></div>
+                <div class="form-group"><label>Quantidade:</label><input type="number" name="quantidade" min="0" required></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar</button>
+                    <button type="button" class="btn-secondary" id="btn-listar-livros">Listar Todos</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-livro">Deletar por ID</button>
+                    <button type="button" class="btn-secondary" onclick="limparFormulario('form-livro')">Limpar</button>
+                </div>
+            </form>
+            <div class="filter-box">
+                <input type="number" id="delete-id-livro" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-livro" class="btn-danger">Confirmar Exclusão</button>
+            </div>
+            <table id="tabela-livros"><thead><tr><th>ID</th><th>Título</th><th>Ano</th><th>ISBN</th><th>Categorias</th><th>Qtd</th></tr></thead><tbody></tbody></table>
+        </section>
 
-    <!-- Seção Autores -->
-    <div class="section">
-        <h2>✍️ Autores</h2>
-        <div class="forms-grid">
-            <!-- Criar Autor -->
-            <div class="form-card">
-                <h3>➕ Criar autor</h3>
-                <form id="formCriarAutor">
-                    <label>Nome</label>
-                    <input type="text" name="nome" placeholder="Ex: Machado de Assis" required>
-                    <label>Data Nascimento</label>
-                    <input type="text" name="dataNascimento" placeholder="AAAA-MM-DD">
-                    <label>Nacionalidade</label>
-                    <input type="text" name="nacionalidade" placeholder="Brasileiro">
-                    <button type="submit">Enviar (POST)</button>
-                </form>
-            </div>
-            <!-- Atualizar Autor -->
-            <div class="form-card">
-                <h3>✏️ Atualizar autor</h3>
-                <form id="formAtualizarAutor">
-                    <label>ID do autor *</label>
-                    <input type="number" name="id" placeholder="1" required>
-                    <label>Novo nome</label>
-                    <input type="text" name="nome" placeholder="Nome atualizado">
-                    <label>Nova data nasc.</label>
-                    <input type="text" name="dataNascimento" placeholder="AAAA-MM-DD">
-                    <label>Nova nacionalidade</label>
-                    <input type="text" name="nacionalidade" placeholder="Brasileiro">
-                    <button type="submit" class="secondary">Atualizar (PUT)</button>
-                </form>
-            </div>
-            <!-- Deletar + Buscar por ID -->
-            <div class="form-card">
-                <h3>🔍 Buscar / ❌ Deletar</h3>
-                <label>ID do autor</label>
-                <div class="inline-group">
-                    <input type="number" id="autorIdAcao" placeholder="1">
+        <!-- Seção Usuários -->
+        <section id="usuarios">
+            <h2>Usuário</h2>
+            <form id="form-usuario">
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="usuario-id" min="1" placeholder="para atualizar"></div>
+                <div class="form-group"><label>Nome:</label><input type="text" name="nome" required></div>
+                <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento" pattern="\d{8}" required></div>
+                <div class="form-group"><label>Email:</label><input type="email" name="email" required></div>
+                <div class="form-group"><label>Senha:</label><input type="password" name="senha" required></div>
+                <div class="form-group"><label>Nível Permissão (0/1):</label><input type="number" name="nivelPermissao" min="0" max="1" value="0" required></div>
+                <div class="form-group"><label>Telefones (vírgula):</label><input type="text" name="telefones" placeholder="Ex: 11999999999, 11888888888" required></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar</button>
+                    <button type="button" class="btn-secondary" id="btn-listar-usuarios">Listar Todos</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-usuario">Deletar por ID</button>
+                    <button type="button" class="btn-secondary" onclick="limparFormulario('form-usuario')">Limpar</button>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="btnBuscarAutor" class="secondary" style="flex:1">Buscar</button>
-                    <button id="btnDeletarAutor" class="warning" style="flex:1">Deletar</button>
-                </div>
-                <hr>
-                <button id="btnListarAutores">📄 Listar todos os autores</button>
+            </form>
+            <div class="filter-box">
+                <input type="number" id="delete-id-usuario" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-usuario" class="btn-danger">Confirmar Exclusão</button>
             </div>
-        </div>
-    </div>
+            <table id="tabela-usuarios"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Email</th><th>Permissão</th><th>Tel.</th></tr></thead><tbody></tbody></table>
+        </section>
 
-    <!-- Seção Livros -->
-    <div class="section">
-        <h2>📖 Livros</h2>
-        <div class="forms-grid">
-            <div class="form-card">
-                <h3>➕ Criar livro</h3>
-                <form id="formCriarLivro">
-                    <label>Título</label>
-                    <input type="text" name="titulo" placeholder="Dom Casmurro" required>
-                    <label>ID do Autor</label>
-                    <input type="number" name="autorId" placeholder="1">
-                    <label>ISBN</label>
-                    <input type="text" name="isbn" placeholder="978-...">
-                    <label>Ano</label>
-                    <input type="number" name="anoPublicacao" placeholder="1899">
-                    <label>Categorias (separadas por vírgula)</label>
-                    <input type="text" name="categorias[]">
-                    <button type="submit">Enviar (POST)</button>
-                </form>
-            </div>
-            <div class="form-card">
-                <h3>✏️ Atualizar livro</h3>
-                <form id="formAtualizarLivro">
-                    <label>ID do livro *</label>
-                    <input type="number" name="id" required>
-                    <label>Novo título</label>
-                    <input type="text" name="titulo">
-                    <label>Novo autor ID</label>
-                    <input type="number" name="autorId">
-                    <label>Novo ISBN</label>
-                    <input type="text" name="isbn">
-                    <label>Novo ano</label>
-                    <input type="number" name="anoPublicacao">
-                    <button type="submit" class="secondary">Atualizar (PUT)</button>
-                </form>
-            </div>
-            <div class="form-card">
-                <h3>🔍 / ❌ Ações</h3>
-                <label>ID do livro</label>
-                <div class="inline-group">
-                    <input type="number" id="livroIdAcao" placeholder="1">
+        <!-- Seção Empréstimos -->
+        <section id="emprestimos">
+            <h2>Empréstimo</h2>
+            <form id="form-emprestimo">
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="emprestimo-id" min="1" placeholder="para atualizar"></div>
+                <div class="form-group"><label>ID Livro:</label><input type="number" name="idLivro" min="1" required></div>
+                <div class="form-group"><label>ID Usuário:</label><input type="number" name="idUsuario" min="1" required></div>
+                <div class="form-group"><label>Devolvido:</label><input type="checkbox" name="devolvido" disabled title="Campo não editável via este formulário"></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar (Criar)</button>
+                    <button type="button" class="btn-secondary" id="btn-listar-emprestimos">Listar Todos</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-emprestimo">Deletar por ID</button>
+                    <button type="button" class="btn-secondary" onclick="limparFormulario('form-emprestimo')">Limpar</button>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="btnBuscarLivro" class="secondary" style="flex:1">Buscar</button>
-                    <button id="btnDeletarLivro" class="warning" style="flex:1">Deletar</button>
-                </div>
-                <hr>
-                <button id="btnListarLivros">📄 Listar todos os livros</button>
+            </form>
+            <div class="filter-box">
+                <input type="number" id="delete-id-emprestimo" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-emprestimo" class="btn-danger">Confirmar Exclusão</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Seção Usuários -->
-    <div class="section">
-        <h2>👤 Usuários</h2>
-        <div class="forms-grid">
-            <div class="form-card">
-                <h3>➕ Criar usuário</h3>
-                <form id="formCriarUsuario">
-                    <label>Nome</label>
-                    <input type="text" name="nome" placeholder="João Silva" required>
-                    <label>Email</label>
-                    <input type="email" name="email" placeholder="joao@email.com">
-                    <label>Telefone</label>
-                    <input type="text" name="telefone" placeholder="(11) 99999-9999">
-                    <label>Senha</label>
-                    <input type="password" name="senha">
-                    <button type="submit">Enviar (POST)</button>
-                </form>
+            <div class="filter-box">
+                <label>Buscar por Livro (ID):</label>
+                <input type="number" id="filtro-livro-id" placeholder="ID do livro" min="1">
+                <button id="btn-filtrar-livro" class="btn-primary">Filtrar</button>
             </div>
-            <div class="form-card">
-                <h3>✏️ Atualizar usuário</h3>
-                <form id="formAtualizarUsuario">
-                    <label>ID do usuário *</label>
-                    <input type="number" name="id" required>
-                    <label>Novo nome</label>
-                    <input type="text" name="nome">
-                    <label>Novo email</label>
-                    <input type="email" name="email">
-                    <label>Novo telefone</label>
-                    <input type="text" name="telefone">
-                    <button type="submit" class="secondary">Atualizar (PUT)</button>
-                </form>
-            </div>
-            <div class="form-card">
-                <h3>🔍 / ❌ Ações</h3>
-                <label>ID do usuário</label>
-                <div class="inline-group">
-                    <input type="number" id="usuarioIdAcao" placeholder="1">
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="btnBuscarUsuario" class="secondary" style="flex:1">Buscar</button>
-                    <button id="btnDeletarUsuario" class="warning" style="flex:1">Deletar</button>
-                </div>
-                <hr>
-                <button id="btnListarUsuarios">📄 Listar todos os usuários</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Seção Empréstimos -->
-    <div class="section">
-        <h2>🔄 Empréstimos</h2>
-        <div class="forms-grid">
-            <div class="form-card">
-                <h3>➕ Criar empréstimo</h3>
-                <form id="formCriarEmprestimo">
-                    <label>ID do Livro</label>
-                    <input type="number" name="livroId" required>
-                    <label>ID do Usuário</label>
-                    <input type="number" name="usuarioId" required>
-                    <button type="submit">Enviar (POST)</button>
-                </form>
-            </div>
-            <div class="form-card">
-                <h3>✏️ Atualizar empréstimo</h3>
-                <form id="formAtualizarEmprestimo">
-                    <label>ID do empréstimo *</label>
-                    <input type="number" name="id" required>
-                    <label>Novo livro ID</label>
-                    <input type="number" name="livroId">
-                    <label>Novo usuário ID</label>
-                    <input type="number" name="usuarioId">
-                    <label>Nova data empréstimo</label>
-                    <input type="text" name="dataEmprestimo">
-                    <label>Nova data devolução</label>
-                    <input type="text" name="dataDevolucao">
-                    <button type="submit" class="secondary">Atualizar (PUT)</button>
-                </form>
-            </div>
-            <div class="form-card">
-                <h3>🔍 / ❌ Ações</h3>
-                <label>ID do empréstimo</label>
-                <div class="inline-group">
-                    <input type="number" id="emprestimoIdAcao" placeholder="1">
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="btnBuscarEmprestimo" class="secondary" style="flex:1">Buscar</button>
-                    <button id="btnDeletarEmprestimo" class="warning" style="flex:1">Deletar</button>
-                </div>
-                <hr>
-                <button id="btnListarEmprestimos">📄 Listar todos os empréstimos</button>
-            </div>
-        </div>
-    </div>
+            <table id="tabela-emprestimos"><thead><tr><th>ID</th><th>Livro ID</th><th>Usuário ID</th><th>Devolvido</th><th>Empréstimo</th><th>Devolução</th></tr></thead><tbody></tbody></table>
+        </section>
+    </main>
 
     <script>
         (function() {
-            const BASE_URL = '';  // servidor local na mesma origem
-            const resultDiv = document.getElementById('resultContainer');
-
-            // Função auxiliar para exibir resultado
-            function displayResult(text, isError = false) {
-                resultDiv.textContent = text;
-                if (isError) {
-                    resultDiv.style.color = '#f87171';
-                } else {
-                    resultDiv.style.color = '#e2e8f0';
-                }
-            }
-
-            // Limpar resultado
-            document.getElementById('clearResultBtn').addEventListener('click', () => {
-                resultDiv.textContent = 'Clique em qualquer ação para ver a resposta aqui.';
-                resultDiv.style.color = '#e2e8f0';
+            // ---------- Navegação ----------
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const sectionId = this.dataset.section;
+                    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+                    const target = document.getElementById(sectionId);
+                    if (target) target.classList.add('active');
+                });
             });
 
-            // Função genérica para enviar formulário via fetch (application/x-www-form-urlencoded)
-            async function submitForm(formElement, method, endpoint, id = null) {
-                const formData = new FormData(formElement);
-                // Se tiver ID, adiciona à URL (PUT/DELETE/GET by id)
-                let url = BASE_URL + endpoint;
-                if (id !== null) {
-                    url += '/' + id;
+            // ---------- Helpers ----------
+            window.limparFormulario = function(formId) {
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.reset();
+                    // esconde campo ID se existir
+                    const idGroup = form.querySelector('.form-group.hidden');
+                    if (idGroup) idGroup.style.display = 'none';
                 }
+            };
 
-                // Converte FormData para query string
+            function mostrarMensagem(texto, erro = false) {
+                alert(texto);
+            }
+
+            function serializeForm(form, arrayFields = []) {
+                const data = new FormData(form);
                 const params = new URLSearchParams();
-                for (let [key, value] of formData.entries()) {
-                    if (value && value.trim() !== '') {
-                        params.append(key, value.trim());
+                for (const [key, value] of data.entries()) {
+                    if (arrayFields.includes(key) && value) {
+                        value.split(',').map(s => s.trim()).filter(s => s).forEach(v => params.append(key, v));
+                    } else {
+                        params.append(key, value);
                     }
                 }
+                return params;
+            }
 
-                const options = {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    },
-                };
+            async function fetchJSON(url, options = {}) {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                return response.json();
+            }
 
-                if (method !== 'GET' && method !== 'DELETE') {
-                    options.body = params.toString();
+            function montarTabela(tbody, lista, colunas) {
+                tbody.innerHTML = '';
+                if (!lista || lista.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="' + colunas.length + '">Nenhum registro encontrado</td></tr>';
+                    return;
+                }
+                lista.forEach(item => {
+                    const tr = document.createElement('tr');
+                    colunas.forEach(col => {
+                        const td = document.createElement('td');
+                        td.textContent = col.extrator(item);
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // ---------- CRUD genérico ----------
+            function configurarCRUD(secaoId, endpoint, formId, tabelaId, colunas, arrayFields = []) {
+                const form = document.getElementById(formId);
+                const tabela = document.getElementById(tabelaId)?.querySelector('tbody');
+                if (!form || !tabela) {
+                    console.error(`Elementos não encontrados para ${secaoId}: form=${formId}, tabela=${tabelaId}`);
+                    return;
                 }
 
-                // Para GET com parâmetros (listagem ou busca por ID), não enviamos body.
-                // A busca por ID já usa o ID na URL, sem query string extra.
+                // Botão Listar
+                const btnListar = document.getElementById('btn-listar-' + secaoId);
+                if (btnListar) {
+                    btnListar.addEventListener('click', async () => {
+                        try {
+                            const lista = await fetchJSON(endpoint);
+                            montarTabela(tabela, lista, colunas);
+                        } catch (e) {
+                            mostrarMensagem('Erro ao listar: ' + e.message, true);
+                        }
+                    });
+                } else {
+                    console.warn('Botão Listar não encontrado: btn-listar-' + secaoId);
+                }
 
-                try {
-                    const response = await fetch(url, options);
-                    const text = await response.text();
-                    let formatted = text;
+                // Salvar (create/update)
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const idInput = form.querySelector('input[name="id"]');
+                    const id = idInput ? idInput.value : '';
+                    const isUpdate = id && id.trim() !== '';
+                    const method = isUpdate ? 'PUT' : 'POST';
+                    const url = isUpdate ? `${endpoint}/${id}` : endpoint;
+
+                    const params = serializeForm(form, arrayFields);
+                    if (isUpdate) params.delete('id');
+
                     try {
-                        const json = JSON.parse(text);
-                        formatted = JSON.stringify(json, null, 2);
-                    } catch (e) {
-                        // não é JSON, mantém texto
+                        await fetchJSON(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: params.toString()
+                        });
+                        mostrarMensagem('Operação realizada com sucesso!');
+                        limparFormulario(formId);
+                        if (btnListar) btnListar.click();
+                    } catch (err) {
+                        mostrarMensagem('Erro: ' + err.message, true);
                     }
-                    displayResult(`Status: ${response.status} ${response.statusText}\n\n${formatted}`);
-                } catch (error) {
-                    displayResult(`Erro de rede: ${error.message}`, true);
+                });
+
+                // Botão Deletar por ID
+                const btnConfirmDelete = document.getElementById('btn-confirm-delete-' + secaoId);
+                const inputDeleteId = document.getElementById('delete-id-' + secaoId);
+                if (btnConfirmDelete && inputDeleteId) {
+                    btnConfirmDelete.addEventListener('click', async () => {
+                        const id = inputDeleteId.value.trim();
+                        if (!id) {
+                            mostrarMensagem('Informe um ID para deletar.', true);
+                            return;
+                        }
+                        try {
+                            await fetchJSON(`${endpoint}/${id}`, { method: 'DELETE' });
+                            mostrarMensagem('Registro deletado.');
+                            inputDeleteId.value = '';
+                            if (btnListar) btnListar.click();
+                        } catch (err) {
+                            mostrarMensagem('Erro ao deletar: ' + err.message, true);
+                        }
+                    });
+                } else {
+                    console.warn('Botão de exclusão ou campo ID não encontrado para ' + secaoId);
                 }
             }
 
-            // Função para ações GET (listar ou buscar por ID)
-            async function doGet(endpoint, id = null) {
-                let url = BASE_URL + endpoint;
-                if (id !== null) url += '/' + id;
-                try {
-                    const response = await fetch(url);
-                    const text = await response.text();
-                    let formatted = text;
-                    try {
-                        const json = JSON.parse(text);
-                        formatted = JSON.stringify(json, null, 2);
-                    } catch (e) {}
-                    displayResult(`Status: ${response.status}\n\n${formatted}`);
-                } catch (error) {
-                    displayResult(`Erro: ${error.message}`, true);
-                }
-            }
+            // ---------- Configuração das entidades ----------
+            document.addEventListener('DOMContentLoaded', () => {
+                // Autores
+                configurarCRUD('autores', '/autores', 'form-autor', 'tabela-autores', [
+                    { extrator: a => a.id },
+                    { extrator: a => a.nome },
+                    { extrator: a => a.dataNascimento },
+                    { extrator: a => a.nacionalidade }
+                ]);
 
-            // Função para DELETE
-            async function doDelete(endpoint, id) {
-                if (!id) {
-                    displayResult('Informe um ID para deletar.', true);
+                // Livros
+                configurarCRUD('livros', '/livros', 'form-livro', 'tabela-livros', [
+                    { extrator: l => l.id },
+                    { extrator: l => l.titulo },
+                    { extrator: l => l.ano_publicacao },
+                    { extrator: l => l.isbn },
+                    { extrator: l => Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias },
+                    { extrator: l => l.quantidade }
+                ], ['categorias']);
+
+                // Usuários
+                configurarCRUD('usuarios', '/usuarios', 'form-usuario', 'tabela-usuarios', [
+                    { extrator: u => u.id },
+                    { extrator: u => u.nome },
+                    { extrator: u => u.dataNascimento },
+                    { extrator: u => u.email },
+                    { extrator: u => u.nivelPermissao },
+                    { extrator: u => Array.isArray(u.telefones) ? u.telefones.join(', ') : u.telefones }
+                ], ['telefones']);
+
+                // ---------- Empréstimos (especial) ----------
+                const formEmp = document.getElementById('form-emprestimo');
+                const tabelaEmp = document.getElementById('tabela-emprestimos')?.querySelector('tbody');
+                if (!formEmp || !tabelaEmp) {
+                    console.error('Formulário ou tabela de empréstimos não encontrados.');
                     return;
                 }
-                let url = BASE_URL + endpoint + '/' + id;
-                try {
-                    const response = await fetch(url, { method: 'DELETE' });
-                    const text = await response.text();
-                    let formatted = text;
+
+                const btnListarEmp = document.getElementById('btn-listar-emprestimos');
+                const btnFiltrarLivro = document.getElementById('btn-filtrar-livro');
+                const inputFiltroLivro = document.getElementById('filtro-livro-id');
+                const btnConfirmDeleteEmp = document.getElementById('btn-confirm-delete-emprestimo');
+                const inputDeleteEmp = document.getElementById('delete-id-emprestimo');
+
+                // Listar todos
+                if (btnListarEmp) {
+                    btnListarEmp.addEventListener('click', async () => {
+                        try {
+                            const lista = await fetchJSON('/emprestimos');
+                            montarTabela(tabelaEmp, lista, [
+                                { extrator: e => e.id },
+                                { extrator: e => e.idLivro },
+                                { extrator: e => e.idUsuario },
+                                { extrator: e => e.devolvido },
+                                { extrator: e => e.dataEmprestimo },
+                                { extrator: e => e.dataDevolucao }
+                            ]);
+                        } catch (err) {
+                            mostrarMensagem('Erro ao listar: ' + err.message, true);
+                        }
+                    });
+                }
+
+                // Filtrar por livro
+                if (btnFiltrarLivro && inputFiltroLivro) {
+                    btnFiltrarLivro.addEventListener('click', async () => {
+                        const idLivro = inputFiltroLivro.value.trim();
+                        if (!idLivro) {
+                            mostrarMensagem('Informe o ID do livro.', true);
+                            return;
+                        }
+                        try {
+                            const lista = await fetchJSON(`/emprestimos/livro/${idLivro}`);
+                            montarTabela(tabelaEmp, lista, [
+                                { extrator: e => e.id },
+                                { extrator: e => e.idLivro },
+                                { extrator: e => e.idUsuario },
+                                { extrator: e => e.devolvido },
+                                { extrator: e => e.dataEmprestimo },
+                                { extrator: e => e.dataDevolucao }
+                            ]);
+                        } catch (err) {
+                            mostrarMensagem('Erro ao buscar: ' + err.message, true);
+                        }
+                    });
+                }
+
+                // Salvar empréstimo (apenas criação)
+                formEmp.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const idInput = formEmp.querySelector('input[name="id"]');
+                    const id = idInput ? idInput.value : '';
+                    if (id && id.trim() !== '') {
+                        mostrarMensagem('Atualização de empréstimo não é suportada por este formulário. Use apenas para criar.', true);
+                        return;
+                    }
+                    const params = serializeForm(formEmp, []);
+                    params.delete('id');
                     try {
-                        const json = JSON.parse(text);
-                        formatted = JSON.stringify(json, null, 2);
-                    } catch (e) {}
-                    displayResult(`Status: ${response.status}\n\n${formatted}`);
-                } catch (error) {
-                    displayResult(`Erro: ${error.message}`, true);
+                        await fetchJSON('/emprestimos', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: params.toString()
+                        });
+                        mostrarMensagem('Empréstimo criado com sucesso!');
+                        limparFormulario('form-emprestimo');
+                        if (btnListarEmp) btnListarEmp.click();
+                    } catch (err) {
+                        mostrarMensagem('Erro ao criar empréstimo: ' + err.message, true);
+                    }
+                });
+
+                // Deletar empréstimo
+                if (btnConfirmDeleteEmp && inputDeleteEmp) {
+                    btnConfirmDeleteEmp.addEventListener('click', async () => {
+                        const id = inputDeleteEmp.value.trim();
+                        if (!id) {
+                            mostrarMensagem('Informe um ID.', true);
+                            return;
+                        }
+                        try {
+                            await fetchJSON(`/emprestimos/${id}`, { method: 'DELETE' });
+                            mostrarMensagem('Empréstimo deletado.');
+                            inputDeleteEmp.value = '';
+                            if (btnListarEmp) btnListarEmp.click();
+                        } catch (err) {
+                            mostrarMensagem('Erro: ' + err.message, true);
+                        }
+                    });
                 }
-            }
 
-            // ---------- AUTORES ----------
-            document.getElementById('formCriarAutor').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitForm(e.target, 'POST', '/autores');
+                // Torna os campos de ID ocultos inicialmente (eles só devem aparecer quando necessário)
+                document.querySelectorAll('.form-group.hidden').forEach(el => el.style.display = 'none');
             });
-            document.getElementById('formAtualizarAutor').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const idInput = form.querySelector('input[name="id"]');
-                const id = idInput.value;
-                if (!id) {
-                    displayResult('ID é obrigatório para atualizar.', true);
-                    return;
-                }
-                submitForm(form, 'PUT', '/autores', id);
-            });
-            document.getElementById('btnListarAutores').addEventListener('click', () => doGet('/autores'));
-            document.getElementById('btnBuscarAutor').addEventListener('click', () => {
-                const id = document.getElementById('autorIdAcao').value;
-                if (!id) { displayResult('Digite um ID.', true); return; }
-                doGet('/autores', id);
-            });
-            document.getElementById('btnDeletarAutor').addEventListener('click', () => {
-                const id = document.getElementById('autorIdAcao').value;
-                doDelete('/autores', id);
-            });
-
-            // ---------- LIVROS ----------
-            document.getElementById('formCriarLivro').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitForm(e.target, 'POST', '/livros');
-            });
-            document.getElementById('formAtualizarLivro').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const id = form.querySelector('input[name="id"]').value;
-                if (!id) { displayResult('ID obrigatório', true); return; }
-                submitForm(form, 'PUT', '/livros', id);
-            });
-            document.getElementById('btnListarLivros').addEventListener('click', () => doGet('/livros'));
-            document.getElementById('btnBuscarLivro').addEventListener('click', () => {
-                const id = document.getElementById('livroIdAcao').value;
-                if (!id) { displayResult('ID obrigatório', true); return; }
-                doGet('/livros', id);
-            });
-            document.getElementById('btnDeletarLivro').addEventListener('click', () => {
-                const id = document.getElementById('livroIdAcao').value;
-                doDelete('/livros', id);
-            });
-
-            // ---------- USUÁRIOS ----------
-            document.getElementById('formCriarUsuario').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitForm(e.target, 'POST', '/usuarios');
-            });
-            document.getElementById('formAtualizarUsuario').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const id = form.querySelector('input[name="id"]').value;
-                if (!id) { displayResult('ID obrigatório', true); return; }
-                submitForm(form, 'PUT', '/usuarios', id);
-            });
-            document.getElementById('btnListarUsuarios').addEventListener('click', () => doGet('/usuarios'));
-            document.getElementById('btnBuscarUsuario').addEventListener('click', () => {
-                const id = document.getElementById('usuarioIdAcao').value;
-                if (!id) { displayResult('ID obrigatório', true); return; }
-                doGet('/usuarios', id);
-            });
-            document.getElementById('btnDeletarUsuario').addEventListener('click', () => {
-                const id = document.getElementById('usuarioIdAcao').value;
-                doDelete('/usuarios', id);
-            });
-
-            // ---------- EMPRÉSTIMOS ----------
-            document.getElementById('formCriarEmprestimo').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitForm(e.target, 'POST', '/emprestimos');
-            });
-            document.getElementById('formAtualizarEmprestimo').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const id = form.querySelector('input[name="id"]').value;
-                if (!id) { displayResult('ID obrigatório', true); return; }
-                submitForm(form, 'PUT', '/emprestimos', id);
-            });
-            document.getElementById('btnListarEmprestimos').addEventListener('click', () => doGet('/emprestimos'));
-            document.getElementById('btnBuscarEmprestimo').addEventListener('click', () => {
-                const id = document.getElementById('emprestimoIdAcao').value;
-                if (!id) { displayResult('ID obrigatório', true); return; }
-                doGet('/emprestimos', id);
-            });
-            document.getElementById('btnDeletarEmprestimo').addEventListener('click', () => {
-                const id = document.getElementById('emprestimoIdAcao').value;
-                doDelete('/emprestimos', id);
-            });
-
         })();
     </script>
 </body>

@@ -173,4 +173,9 @@ public class Controller<T extends Registro> {
             exchange.close();
         };
     }
+
+    public String listarPorLivro(short idLivro) throws IOException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'listarPorLivro'");
+    }
 }

@@ -106,7 +106,7 @@ public class Emprestimo implements Registro {
     public int getTamanhoEmBytes() {
         // tamanho inicial e fixo é definido por:
         // id + idLivro + idUsuario + devolvido + dataEmprestimo + dataDevolucao
-        return 2 * 3 + 1 + 8 * 2;
+        return 2 * 3 + 1 + 10 * 2;
     }
 
     @Override
