@@ -3,47 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Biblioteca - SPA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <title>📚 BookSys</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
-        header { background: #2c3e50; color: white; padding: 1rem; text-align: center; }
-        nav { display: flex; justify-content: center; background: #34495e; padding: 0.5rem; flex-wrap: wrap; }
-        nav button { margin: 0.2rem; padding: 0.5rem 1rem; border: none; background: #4a6fa5; color: white; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: background 0.2s; }
-        nav button:hover, nav button.active { background: #2c3e50; }
+        body { font-family: 'Lato', sans-serif; background: #F5F0E8; color: #1C1008; }
+        h1, h2 { font-family: 'Playfair Display', serif; }
+        header { background: #2C1810; color: white; padding: 1rem; text-align: center; }
+        nav { display: flex; justify-content: center; background: #3D2314; padding: 0.5rem; flex-wrap: wrap; }
+        nav button { margin: 0.2rem; padding: 0.5rem 1rem; border: none; background: #6B3A2A; color: white; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: background 0.2s; }
+        nav button:hover, nav button.active { background: #2C1810; }
         main { max-width: 960px; margin: 1rem auto; padding: 0 1rem; }
-        section { display: none; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        section { display: none; background: #FDFAF5; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(44,24,16,0.15); }
         section.active { display: block; }
-        h2 { margin-bottom: 1rem; border-bottom: 2px solid #4a6fa5; padding-bottom: 0.3rem; }
+        h2 { margin-bottom: 1rem; border-bottom: 2px solid #C4922A; padding-bottom: 0.3rem; }
         .form-group { margin-bottom: 1rem; display: flex; align-items: center; flex-wrap: wrap; }
         .form-group label { width: 160px; font-weight: bold; }
-        .form-group input, .form-group select { flex: 1; min-width: 200px; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; }
+        .form-group input, .form-group select { flex: 1; min-width: 200px; padding: 0.4rem; border: 1px solid #ccc; border-radius: 8px; }
         .form-group input[type="checkbox"] { flex: 0; min-width: auto; margin-left: 0; }
         .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-        .form-actions button { padding: 0.5rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: #4a6fa5; color: white; }
+        .form-actions button { padding: 0.5rem 1.2rem; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #6B3A2A ; color: white; }
         .btn-danger { background: #c0392b; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-secondary { background: #8B7355; color: #FDFAF5;}
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.85rem; }
-        th { background: #ecf0f1; }
-        .filter-box { margin: 1rem 0; display: flex; gap: 0.5rem; align-items: center; }
-        .filter-box input { padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; }
+        th { background: #2C1810; color: #F5F0E8; }
+        .filter-box { margin: 1rem 0; display: none; gap: 0.5rem; align-items: center; }
+        .filter-box input { padding: 0.4rem; border: 1px solid #ccc; border-radius: 8px; }
+        .filter-box button { border-radius: 20px;padding: 0.5rem 1.2rem; }
         .hidden { display: none; }
         small { color: #888; font-size: 0.8rem; margin-left: 0.5rem; }
     </style>
 </head>
 <body>
-    <header><h1>📚 Biblioteca - Painel Único</h1></header>
+    <header><h1>BookSys</h1></header>
     <nav>
-        <button class="nav-btn active" data-section="autores">Autores</button>
         <button class="nav-btn" data-section="livros">Livros</button>
+        <button class="nav-btn active" data-section="autores">Autores</button>
         <button class="nav-btn" data-section="usuarios">Usuários</button>
         <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
     </nav>
     <main>
         <!-- Seção Autores -->
-        <section id="autores" class="active">
+        <section id="autores">
             <h2>Autor</h2>
             <form id="form-autor">
                 <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="autor-id" min="1" placeholder="para atualizar, informe o ID"></div>
@@ -53,7 +56,7 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-autores">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-autor">Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-autor"onclick="toggleFilterBox('autores')" >Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-autor')">Limpar</button>
                 </div>
             </form>
@@ -61,11 +64,11 @@
                 <input type="number" id="delete-id-autor" placeholder="ID para deletar" min="1">
                 <button id="btn-confirm-delete-autor" class="btn-danger">Confirmar Exclusão</button>
             </div>
-            <table id="tabela-autores"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Nacionalidade</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-autores"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Nacionalidade</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
 
         <!-- Seção Livros -->
-        <section id="livros">
+        <section id="livros" class="active"> 
             <h2>Livro</h2>
             <form id="form-livro">
                 <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="livro-id" min="1" placeholder="para atualizar"></div>
@@ -77,7 +80,7 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-livros">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-livro">Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-livro" onclick="toggleFilterBox('livros')" >Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-livro')">Limpar</button>
                 </div>
             </form>
@@ -85,7 +88,7 @@
                 <input type="number" id="delete-id-livro" placeholder="ID para deletar" min="1">
                 <button id="btn-confirm-delete-livro" class="btn-danger">Confirmar Exclusão</button>
             </div>
-            <table id="tabela-livros"><thead><tr><th>ID</th><th>Título</th><th>Ano</th><th>ISBN</th><th>Categorias</th><th>Qtd</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-livros"><thead><tr><th>ID</th><th>Título</th><th>Ano</th><th>ISBN</th><th>Categorias</th><th>Qtd</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
 
         <!-- Seção Usuários -->
@@ -102,7 +105,7 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-usuarios">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-usuario">Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-usuario" onclick="toggleFilterBox('usuarios')">Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-usuario')">Limpar</button>
                 </div>
             </form>
@@ -110,7 +113,7 @@
                 <input type="number" id="delete-id-usuario" placeholder="ID para deletar" min="1">
                 <button id="btn-confirm-delete-usuario" class="btn-danger">Confirmar Exclusão</button>
             </div>
-            <table id="tabela-usuarios"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Email</th><th>Permissão</th><th>Tel.</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-usuarios"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Email</th><th>Permissão</th><th>Tel.</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
 
         <!-- Seção Empréstimos -->
@@ -124,7 +127,7 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar (Criar)</button>
                     <button type="button" class="btn-secondary" id="btn-listar-emprestimos">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-emprestimo">Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-emprestimo" onclick="toggleFilterBox('emprestimos')">Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-emprestimo')">Limpar</button>
                 </div>
             </form>
@@ -137,7 +140,7 @@
                 <input type="number" id="filtro-livro-id" placeholder="ID do livro" min="1">
                 <button id="btn-filtrar-livro" class="btn-primary">Filtrar</button>
             </div>
-            <table id="tabela-emprestimos"><thead><tr><th>ID</th><th>Livro ID</th><th>Usuário ID</th><th>Devolvido</th><th>Empréstimo</th><th>Devolução</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-emprestimos"><thead><tr><th>ID</th><th>Livro ID</th><th>Usuário ID</th><th>Devolvido</th><th>Empréstimo</th><th>Devolução</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
     </main>
 
@@ -156,6 +159,15 @@
             });
 
             // ---------- Helpers ----------
+            window.toggleFilterBox = function(secaoId) {
+                const filterBox = document.querySelector('#' + secaoId + ' .filter-box');
+                if (filterBox.style.display === 'flex') {
+                    filterBox.style.display = 'none';
+                } else {
+                    filterBox.style.display = 'flex';
+                }
+                
+            };
             window.limparFormulario = function(formId) {
                 const form = document.getElementById(formId);
                 if (form) {
@@ -189,10 +201,10 @@
                 return response.json();
             }
 
-            function montarTabela(tbody, lista, colunas) {
+            function montarTabela(tbody, lista, colunas, onEditar) {
                 tbody.innerHTML = '';
                 if (!lista || lista.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="' + colunas.length + '">Nenhum registro encontrado</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="' + (colunas.length + 1) + '">Nenhum registro encontrado</td></tr>';
                     return;
                 }
                 lista.forEach(item => {
@@ -202,6 +214,20 @@
                         td.textContent = col.extrator(item);
                         tr.appendChild(td);
                     });
+                    const tdAcao = document.createElement('td');
+                    if (onEditar) {
+                        const btnEditar = document.createElement('button');
+                        btnEditar.textContent = 'Editar';
+                        btnEditar.className = 'btn-secondary';
+                        btnEditar.style.borderRadius = '20px';
+                        btnEditar.style.padding = '0.3rem 0.8rem';
+                        btnEditar.style.border = 'none';
+                        btnEditar.style.cursor = 'pointer';
+                        btnEditar.style.fontWeight = 'bold';
+                        btnEditar.addEventListener('click', () => onEditar(item));
+                        tdAcao.appendChild(btnEditar);
+                    }
+                    tr.appendChild(tdAcao);
                     tbody.appendChild(tr);
                 });
             }
