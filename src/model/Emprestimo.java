@@ -96,11 +96,26 @@ public class Emprestimo implements Registro {
     }
 
     public static Emprestimo formToInstance(HashMap<String, Object> formData) {
+    String devolvidoStr = (String) formData.get("devolvido");
+    
+    // se o livro foi devolvido, então é apenas uma atualização de dados, logo, reconstrói o registro completo com devolvido=true pra sobrescrever no DAO
+    if (devolvidoStr != null) {
         return new Emprestimo(
+            Short.parseShort((String) formData.get("id")),
             Short.parseShort((String) formData.get("idLivro")),
-            Short.parseShort((String) formData.get("idUsuario"))
+            Short.parseShort((String) formData.get("idUsuario")),
+            Boolean.parseBoolean(devolvidoStr),
+            (String) formData.get("dataEmprestimo"),
+            (String) formData.get("dataDevolucao")
         );
     }
+
+    // se não foi devolvido, cria um novo empréstimo simples
+    return new Emprestimo(
+        Short.parseShort((String) formData.get("idLivro")),
+        Short.parseShort((String) formData.get("idUsuario"))
+    );
+}
 
     @Override
     public int getTamanhoEmBytes() {
@@ -172,7 +187,7 @@ public class Emprestimo implements Registro {
     }
 
     public void setDataDevolucao(String dataDevolucao) {
-        if (dataEmprestimo.length() != 8) {
+        if (dataDevolucao.length() != 8) {
             throw new IllegalArgumentException("Data de devolução deve seguir o formato YYYYMMDD");
         }
 
@@ -194,7 +209,7 @@ public class Emprestimo implements Registro {
 
     public String toJson() {
         return String.format(
-            "{\"id\":%d,\"idLivro\":%d,\"idUsuario\":%d,\"devolvido\":\"%s\",\"dataEmprestimo\":\"%s\",\"dataDevolucao\":\"%s\"}",
+            "{\"id\":%d,\"idLivro\":%d,\"idUsuario\":%d,\"devolvido\":%b,\"dataEmprestimo\":\"%s\",\"dataDevolucao\":\"%s\"}",
             this.getId(),
             this.getIdLivro(),
             this.getIdUsuario(),

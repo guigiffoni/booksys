@@ -104,14 +104,24 @@ public class Livro implements Registro {
     }
 
     public static Livro formToInstance(HashMap<String, Object> formData) {
-        @SuppressWarnings("unchecked")
-        ArrayList<String> categorias = (ArrayList<String>) formData.get("categorias");
+        Object categoriasObj = formData.get("categorias");
+        String[] categorias;
+
+        if (categoriasObj instanceof ArrayList) {
+            @SuppressWarnings("unchecked")
+            ArrayList<String> lista = (ArrayList<String>) categoriasObj;
+            categorias = lista.toArray(new String[0]);
+        } else if (categoriasObj instanceof String) {
+            categorias = new String[]{ (String) categoriasObj };
+        } else {
+            throw new IllegalArgumentException("Deve haver ao menos uma categoria!");
+        }
 
         return new Livro(
             (String) formData.get("titulo"),
             Short.parseShort((String) formData.get("anoPublicacao")),
             (String) formData.get("ISBN"),
-            categorias.toArray(new String[0]),
+            categorias,
             Short.parseShort((String) formData.get("quantidade"))
         );
     }

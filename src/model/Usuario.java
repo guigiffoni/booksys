@@ -90,7 +90,7 @@ public class Usuario implements Registro {
             String email = dis.readUTF();
             String senha = dis.readUTF();
     
-            int numTelefones = dis.readShort();
+            int numTelefones = dis.readByte();
             String[] telefones = new String[numTelefones];
             for (int i = 0; i < numTelefones; i++) {
                 telefones[i] = dis.readUTF();
@@ -113,8 +113,18 @@ public class Usuario implements Registro {
     }
 
     public static Usuario formToInstance(HashMap<String, Object> formData) {
-        @SuppressWarnings("unchecked")
-        ArrayList<String> telefones = (ArrayList<String>) formData.get("telefones");
+        Object telefonesObj = formData.get("telefones");
+        String[] telefones;
+
+        if (telefonesObj instanceof ArrayList) {
+            @SuppressWarnings("unchecked")
+            ArrayList<String> lista = (ArrayList<String>) telefonesObj;
+            telefones = lista.toArray(new String[0]);
+        } else if (telefonesObj instanceof String) {
+            telefones = new String[]{ (String) telefonesObj };
+        } else {
+            throw new IllegalArgumentException("Pelo menos um telefone deve ser informado!");
+        }
 
         return new Usuario(
             Byte.parseByte((String) formData.get("nivelPermissao")),
@@ -122,15 +132,15 @@ public class Usuario implements Registro {
             (String) formData.get("dataNascimento"),
             (String) formData.get("email"),
             (String) formData.get("senha"),
-            telefones.toArray(new String[0])
+            telefones
         );
     }
 
     @Override
     public int getTamanhoEmBytes() {
         // tamanho inicial: 
-        // id + diasBloqueado + nivelPermissao + dataNascimento + numTelefones
-        int tamanho = 2 * 2 + 1 + 8 + 1;
+        // id + diasBloqueado + nivelPermissao + dataNascimento (writeUTF faz 2bytes de tamanho + 8bytes para string) + numTelefones
+        int tamanho = 2 * 2 + 1 + 10 + 1;
 
         tamanho += this.nome.getBytes(Registro.charset).length + 2;
         tamanho += this.email.getBytes(Registro.charset).length + 2;
@@ -236,7 +246,7 @@ public class Usuario implements Registro {
 
     public String toJson() {
         String inicial = String.format(
-            "{\"id\":%d,\"diasBloqueado\":%d,\"nivelPermissao\":%d,\"nome\":\"%s\",\"dataNascimento\":\"%s\",\"email\":\"%s\",\"senha\":\"%s\",\"telefones\":}",
+            "{\"id\":%d,\"diasBloqueado\":%d,\"nivelPermissao\":%d,\"nome\":\"%s\",\"dataNascimento\":\"%s\",\"email\":\"%s\",\"senha\":\"%s\",\"telefones\":",
             this.getId(),
             this.getDiasBloqueado(),
             this.getNivelPermissao(),

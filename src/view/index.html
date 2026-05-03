@@ -100,7 +100,8 @@
                 <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento" pattern="\d{8}" required></div>
                 <div class="form-group"><label>Email:</label><input type="email" name="email" required></div>
                 <div class="form-group"><label>Senha:</label><input type="password" name="senha" required></div>
-                <div class="form-group"><label>Nível Permissão (0/1):</label><input type="number" name="nivelPermissao" min="0" max="1" value="0" required></div>
+                <div class="form-group">
+                <label>Nível Permissão:</label><select name="nivelPermissao" required><option value="0">0 — Usuário comum</option><option value="1">1 — Administrador</option></select></div>
                 <div class="form-group"><label>Telefones (vírgula):</label><input type="text" name="telefones" placeholder="Ex: 11999999999, 11888888888" required></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
@@ -123,7 +124,6 @@
                 <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="emprestimo-id" min="1" placeholder="para atualizar"></div>
                 <div class="form-group"><label>ID Livro:</label><input type="number" name="idLivro" min="1" required></div>
                 <div class="form-group"><label>ID Usuário:</label><input type="number" name="idUsuario" min="1" required></div>
-                <div class="form-group"><label>Devolvido:</label><input type="checkbox" name="devolvido" disabled title="Campo não editável via este formulário"></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar (Criar)</button>
                     <button type="button" class="btn-secondary" id="btn-listar-emprestimos">Listar Todos</button>
@@ -201,7 +201,7 @@
                 return response.json();
             }
 
-            function montarTabela(tbody, lista, colunas, onEditar) {
+            function montarTabela(tbody, lista, colunas, onEditar, textoBotao = () => 'Editar') {
                 tbody.innerHTML = '';
                 if (!lista || lista.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="' + (colunas.length + 1) + '">Nenhum registro encontrado</td></tr>';
@@ -217,7 +217,7 @@
                     const tdAcao = document.createElement('td');
                     if (onEditar) {
                         const btnEditar = document.createElement('button');
-                        btnEditar.textContent = 'Editar';
+                        btnEditar.textContent = textoBotao(item);
                         btnEditar.className = 'btn-secondary';
                         btnEditar.style.borderRadius = '20px';
                         btnEditar.style.padding = '0.3rem 0.8rem';
@@ -404,8 +404,25 @@
                                     const d = e.dataDevolucao;
                                     if (!d || d.length !== 8) return d;
                                     return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
-                                }}
-                            ]);
+                                }} 
+                                ], (emp) => {
+                                    console.log('Editar clicado', emp);
+                                    if (emp.devolvido) return;
+                                    if (!confirm('Confirmar devolução do empréstimo #' + emp.id + '?')) return; 
+                                    const params = new URLSearchParams();
+                                    params.append('id', emp.id);
+                                    params.append('idLivro', emp.idLivro);
+                                    params.append('idUsuario', emp.idUsuario);
+                                    params.append('devolvido', 'true');
+                                    params.append('dataEmprestimo', emp.dataEmprestimo);
+                                    params.append('dataDevolucao', emp.dataDevolucao);
+
+                                    fetch(`/emprestimos/${emp.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                        body: params.toString()
+                                    }).then(() => btnListarEmp.click());
+                                }, (emp) => emp.devolvido ? 'Devolvido' : 'Marcar como devolvido');
                         } catch (err) {
                             mostrarMensagem('Erro ao listar: ' + err.message, true);
                         }
