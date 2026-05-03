@@ -39,8 +39,8 @@
 <body>
     <header><h1>BookSys</h1></header>
     <nav>
-        <button class="nav-btn" data-section="livros">Livros</button>
-        <button class="nav-btn active" data-section="autores">Autores</button>
+        <button class="nav-btn active" data-section="livros">Livros</button>
+        <button class="nav-btn" data-section="autores">Autores</button>
         <button class="nav-btn" data-section="usuarios">Usuários</button>
         <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
     </nav>
@@ -56,13 +56,13 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-autores">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-autor"onclick="toggleFilterBox('autores')" >Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-autores"onclick="toggleFilterBox('autores')" >Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-autor')">Limpar</button>
                 </div>
             </form>
             <div class="filter-box">
-                <input type="number" id="delete-id-autor" placeholder="ID para deletar" min="1">
-                <button id="btn-confirm-delete-autor" class="btn-danger">Confirmar Exclusão</button>
+                <input type="number" id="delete-id-autores" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-autores" class="btn-danger">Confirmar Exclusão</button>
             </div>
             <table id="tabela-autores"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Nacionalidade</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
@@ -80,13 +80,13 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-livros">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-livro" onclick="toggleFilterBox('livros')" >Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-livros" onclick="toggleFilterBox('livros')" >Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-livro')">Limpar</button>
                 </div>
             </form>
             <div class="filter-box">
-                <input type="number" id="delete-id-livro" placeholder="ID para deletar" min="1">
-                <button id="btn-confirm-delete-livro" class="btn-danger">Confirmar Exclusão</button>
+                <input type="number" id="delete-id-livros" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-livros" class="btn-danger">Confirmar Exclusão</button>
             </div>
             <table id="tabela-livros"><thead><tr><th>ID</th><th>Título</th><th>Ano</th><th>ISBN</th><th>Categorias</th><th>Qtd</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
@@ -105,13 +105,13 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-usuarios">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-usuario" onclick="toggleFilterBox('usuarios')">Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-usuarios" onclick="toggleFilterBox('usuarios')">Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-usuario')">Limpar</button>
                 </div>
             </form>
             <div class="filter-box">
-                <input type="number" id="delete-id-usuario" placeholder="ID para deletar" min="1">
-                <button id="btn-confirm-delete-usuario" class="btn-danger">Confirmar Exclusão</button>
+                <input type="number" id="delete-id-usuarios" placeholder="ID para deletar" min="1">
+                <button id="btn-confirm-delete-usuarios" class="btn-danger">Confirmar Exclusão</button>
             </div>
             <table id="tabela-usuarios"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Email</th><th>Permissão</th><th>Tel.</th><th>Ações</th></tr></thead><tbody></tbody></table>
         </section>
@@ -233,7 +233,7 @@
             }
 
             // ---------- CRUD genérico ----------
-            function configurarCRUD(secaoId, endpoint, formId, tabelaId, colunas, arrayFields = []) {
+            function configurarCRUD(secaoId, endpoint, formId, tabelaId, colunas, arrayFields = [], camposEditar = []) {
                 const form = document.getElementById(formId);
                 const tabela = document.getElementById(tabelaId)?.querySelector('tbody');
                 if (!form || !tabela) {
@@ -247,7 +247,18 @@
                     btnListar.addEventListener('click', async () => {
                         try {
                             const lista = await fetchJSON(endpoint);
-                            montarTabela(tabela, lista, colunas);
+                            montarTabela(tabela, lista, colunas, (item) => {
+                            const form = document.getElementById(formId);
+                            const idInput = form.querySelector('input[name="id"]');
+                            if (idInput) {
+                                idInput.value = item.id;
+                            }
+                            camposEditar.forEach(campo => {
+                                const input = form.querySelector(`input[name="${campo.nome}"]`);
+                                if (input) input.value = campo.extrator(item);
+                            });
+                            form.scrollIntoView({ behavior: 'smooth' });
+                        });
                         } catch (e) {
                             mostrarMensagem('Erro ao listar: ' + e.message, true);
                         }
@@ -312,8 +323,16 @@
                 configurarCRUD('autores', '/autores', 'form-autor', 'tabela-autores', [
                     { extrator: a => a.id },
                     { extrator: a => a.nome },
-                    { extrator: a => a.dataNascimento },
+                    { extrator: a => {
+                        const d = a.dataNascimento;
+                        if (!d || d.length !== 8) return d;
+                        return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // formata a data colocada para aparecer na tabela de listagem como DD/MM/AAAA
+                    }},
                     { extrator: a => a.nacionalidade }
+                ], [], [
+                    { nome: 'nome',            extrator: a => a.nome },
+                    { nome: 'dataNascimento',  extrator: a => a.dataNascimento },
+                    { nome: 'nacionalidade',   extrator: a => a.nacionalidade }
                 ]);
 
                 // Livros
@@ -324,17 +343,33 @@
                     { extrator: l => l.isbn },
                     { extrator: l => Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias },
                     { extrator: l => l.quantidade }
-                ], ['categorias']);
+                ], ['categorias'], [
+                    { nome: 'titulo',        extrator: l => l.titulo },
+                    { nome: 'anoPublicacao', extrator: l => l.ano_publicacao },
+                    { nome: 'ISBN',          extrator: l => l.isbn },
+                    { nome: 'categorias',    extrator: l => Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias },
+                    { nome: 'quantidade',    extrator: l => l.quantidade }
+                ]);
 
                 // Usuários
                 configurarCRUD('usuarios', '/usuarios', 'form-usuario', 'tabela-usuarios', [
                     { extrator: u => u.id },
                     { extrator: u => u.nome },
-                    { extrator: u => u.dataNascimento },
+                    { extrator: u => {
+                        const d = u.dataNascimento;
+                        if (!d || d.length !== 8) return d;
+                        return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
+                    }},
                     { extrator: u => u.email },
                     { extrator: u => u.nivelPermissao },
                     { extrator: u => Array.isArray(u.telefones) ? u.telefones.join(', ') : u.telefones }
-                ], ['telefones']);
+                ], ['telefones'], [
+                    { nome: 'nome',           extrator: u => u.nome },
+                    { nome: 'dataNascimento', extrator: u => u.dataNascimento },
+                    { nome: 'email',          extrator: u => u.email },
+                    { nome: 'nivelPermissao', extrator: u => u.nivelPermissao },
+                    { nome: 'telefones',      extrator: u => Array.isArray(u.telefones) ? u.telefones.join(', ') : u.telefones }
+                ]);
 
                 // ---------- Empréstimos (especial) ----------
                 const formEmp = document.getElementById('form-emprestimo');
@@ -359,9 +394,17 @@
                                 { extrator: e => e.id },
                                 { extrator: e => e.idLivro },
                                 { extrator: e => e.idUsuario },
-                                { extrator: e => e.devolvido },
-                                { extrator: e => e.dataEmprestimo },
-                                { extrator: e => e.dataDevolucao }
+                                { extrator: e => e.devolvido ? 'Sim' : 'Não' },
+                                { extrator: e => {
+                                    const d = e.dataEmprestimo;
+                                    if (!d || d.length !== 8) return d;
+                                    return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
+                                }},
+                                { extrator: e => {
+                                    const d = e.dataDevolucao;
+                                    if (!d || d.length !== 8) return d;
+                                    return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
+                                }}
                             ]);
                         } catch (err) {
                             mostrarMensagem('Erro ao listar: ' + err.message, true);
