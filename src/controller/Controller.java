@@ -11,6 +11,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import src.dao.Dao;
+import src.util.Arvore;
+import src.util.Pagina;
 import src.util.Registro;
 import src.util.RequestHelper;
 
@@ -51,6 +53,11 @@ public class Controller<T extends Registro> {
     public String listaRegistros() throws IOException {
         ArrayList<T> registros = this.dao.listar();
 
+        Arvore<T> arvore = new Arvore<>();
+        for (T registro : registros) {
+            arvore.inserir(registro);
+        }
+
         if (registros.size() == 0) {
             return "[]";
         }
@@ -58,11 +65,20 @@ public class Controller<T extends Registro> {
         StringBuilder str = new StringBuilder();
 
         str.append('[');
-        for (T registro : registros) {
-            str.append(registro.toJson());
-            str.append(',');
+        Pagina<T> paginaRef = arvore.getPrimeiraFolha();
+        System.out.println(paginaRef);
+
+        while (paginaRef != null) {
+            for (int i = 0; i < paginaRef.getNumChaves(); i++) {
+                str.append(paginaRef.chaves[i].refInstancia.toJson());
+                str.append(',');
+            }
+
+            paginaRef = paginaRef.proximo;
         }
+
         str.setCharAt(str.length() - 1, ']');
+
         return str.toString();
     }
 
