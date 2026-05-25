@@ -1,3 +1,7 @@
 *.class
 *.dat
 .~lock*
+*.mp4*
+*.dat
+*.dir
+*.bal

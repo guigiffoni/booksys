@@ -1,62 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap"
+        rel="stylesheet">
     <title>📚 BookSys</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Lato', sans-serif; background: #F5F0E8; color: #1C1008; }
-        h1, h2 { font-family: 'Playfair Display', serif; }
-        header { background: #2C1810; color: white; padding: 1rem; text-align: center; }
-        nav { display: flex; justify-content: center; background: #3D2314; padding: 0.5rem; flex-wrap: wrap; }
-        nav button { margin: 0.2rem; padding: 0.5rem 1rem; border: none; background: #6B3A2A; color: white; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: background 0.2s; }
-        nav button:hover, nav button.active { background: #2C1810; }
-        main { max-width: 960px; margin: 1rem auto; padding: 0 1rem; }
-        section { display: none; background: #FDFAF5; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(44,24,16,0.15); }
-        section.active { display: block; }
-        h2 { margin-bottom: 1rem; border-bottom: 2px solid #C4922A; padding-bottom: 0.3rem; }
-        .form-group { margin-bottom: 1rem; display: flex; align-items: center; flex-wrap: wrap; }
-        .form-group label { width: 160px; font-weight: bold; }
-        .form-group input, .form-group select { flex: 1; min-width: 200px; padding: 0.4rem; border: 1px solid #ccc; border-radius: 8px; }
-        .form-group input[type="checkbox"] { flex: 0; min-width: auto; margin-left: 0; }
-        .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-        .form-actions button { padding: 0.5rem 1.2rem; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: #6B3A2A ; color: white; }
-        .btn-danger { background: #c0392b; color: white; }
-        .btn-secondary { background: #8B7355; color: #FDFAF5;}
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.85rem; }
-        th { background: #2C1810; color: #F5F0E8; }
-        .filter-box { margin: 1rem 0; display: none; gap: 0.5rem; align-items: center; }
-        .filter-box input { padding: 0.4rem; border: 1px solid #ccc; border-radius: 8px; }
-        .filter-box button { border-radius: 20px;padding: 0.5rem 1.2rem; }
-        .hidden { display: none; }
-        small { color: #888; font-size: 0.8rem; margin-left: 0.5rem; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: #F5F0E8;
+            color: #1C1008;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        header {
+            background: #2C1810;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #3D2314;
+            padding: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            margin: 0.2rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: #6B3A2A;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        nav button:hover,
+        nav button.active {
+            background: #2C1810;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        section {
+            display: none;
+            background: #FDFAF5;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(44, 24, 16, 0.15);
+        }
+
+        section.active {
+            display: block;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #C4922A;
+            padding-bottom: 0.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .form-group label {
+            width: 160px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.4rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .form-group input[type="checkbox"] {
+            flex: 0;
+            min-width: auto;
+            margin-left: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .form-actions button {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #6B3A2A;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #8B7355;
+            color: #FDFAF5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: #2C1810;
+            color: #F5F0E8;
+        }
+
+        .filter-box {
+            margin: 1rem 0;
+            display: none;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .filter-box input {
+            padding: 0.4rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .filter-box button {
+            border-radius: 20px;
+            padding: 0.5rem 1.2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        small {
+            color: #888;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
+
 <body>
-    <header><h1>BookSys</h1></header>
+    <header>
+        <h1>BookSys</h1>
+    </header>
     <nav>
         <button class="nav-btn active" data-section="livros">Livros</button>
         <button class="nav-btn" data-section="autores">Autores</button>
         <button class="nav-btn" data-section="usuarios">Usuários</button>
         <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
+        <button class="nav-btn" data-section="associacoes">Associações</button>
     </nav>
     <main>
         <!-- Seção Autores -->
         <section id="autores">
             <h2>Autor</h2>
             <form id="form-autor">
-                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="autor-id" min="1" placeholder="para atualizar, informe o ID"></div>
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="autor-id" min="1"
+                        placeholder="para atualizar, informe o ID"></div>
                 <div class="form-group"><label>Nome:</label><input type="text" name="nome" required></div>
-                <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento" pattern="\d{8}" required></div>
-                <div class="form-group"><label>Nacionalidade:</label><input type="text" name="nacionalidade" required></div>
+                <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento"
+                        pattern="\d{8}" required></div>
+                <div class="form-group"><label>Nacionalidade:</label><input type="text" name="nacionalidade" required>
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-autores">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-autores"onclick="toggleFilterBox('autores')" >Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-autores"
+                        onclick="toggleFilterBox('autores')">Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-autor')">Limpar</button>
                 </div>
             </form>
@@ -64,23 +223,40 @@
                 <input type="number" id="delete-id-autores" placeholder="ID para deletar" min="1">
                 <button id="btn-confirm-delete-autores" class="btn-danger">Confirmar Exclusão</button>
             </div>
-            <table id="tabela-autores"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Nacionalidade</th><th>Ações</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-autores">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Nascimento</th>
+                        <th>Nacionalidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </section>
 
         <!-- Seção Livros -->
-        <section id="livros" class="active"> 
+        <section id="livros" class="active">
             <h2>Livro</h2>
             <form id="form-livro">
-                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="livro-id" min="1" placeholder="para atualizar"></div>
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="livro-id" min="1"
+                        placeholder="para atualizar"></div>
                 <div class="form-group"><label>Título:</label><input type="text" name="titulo" required></div>
-                <div class="form-group"><label>Ano Publicação:</label><input type="number" name="anoPublicacao" min="0" max="2100" required></div>
-                <div class="form-group"><label>ISBN (13 dígitos):</label><input type="text" name="ISBN" pattern="\d{13}" required></div>
-                <div class="form-group"><label>Categorias (vírgula):</label><input type="text" name="categorias" placeholder="Ex: Ficção, Romance" required></div>
-                <div class="form-group"><label>Quantidade:</label><input type="number" name="quantidade" min="0" required></div>
+                <div class="form-group"><label>Ano Publicação:</label><input type="number" name="anoPublicacao" min="0"
+                        max="2100" required></div>
+                <div class="form-group"><label>ISBN (13 dígitos):</label><input type="text" name="ISBN" pattern="\d{13}"
+                        required></div>
+                <div class="form-group"><label>Categorias (vírgula):</label><input type="text" name="categorias"
+                        placeholder="Ex: Ficção, Romance" required></div>
+                <div class="form-group"><label>Quantidade:</label><input type="number" name="quantidade" min="0"
+                        required></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-livros">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-livros" onclick="toggleFilterBox('livros')" >Deletar por ID</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-livros"
+                        onclick="toggleFilterBox('livros')">Deletar por ID</button>
                     <button type="button" class="btn-secondary" onclick="limparFormulario('form-livro')">Limpar</button>
                 </div>
             </form>
@@ -88,47 +264,87 @@
                 <input type="number" id="delete-id-livros" placeholder="ID para deletar" min="1">
                 <button id="btn-confirm-delete-livros" class="btn-danger">Confirmar Exclusão</button>
             </div>
-            <table id="tabela-livros"><thead><tr><th>ID</th><th>Título</th><th>Ano</th><th>ISBN</th><th>Categorias</th><th>Qtd</th><th>Ações</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-livros">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Ano</th>
+                        <th>ISBN</th>
+                        <th>Categorias</th>
+                        <th>Qtd</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </section>
 
         <!-- Seção Usuários -->
         <section id="usuarios">
             <h2>Usuário</h2>
             <form id="form-usuario">
-                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="usuario-id" min="1" placeholder="para atualizar"></div>
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="usuario-id" min="1"
+                        placeholder="para atualizar"></div>
                 <div class="form-group"><label>Nome:</label><input type="text" name="nome" required></div>
-                <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento" pattern="\d{8}" required></div>
+                <div class="form-group"><label>Data Nasc. (AAAAMMDD):</label><input type="text" name="dataNascimento"
+                        pattern="\d{8}" required></div>
                 <div class="form-group"><label>Email:</label><input type="email" name="email" required></div>
                 <div class="form-group"><label>Senha:</label><input type="password" name="senha" required></div>
                 <div class="form-group">
-                <label>Nível Permissão:</label><select name="nivelPermissao" required><option value="0">0 — Usuário comum</option><option value="1">1 — Administrador</option></select></div>
-                <div class="form-group"><label>Telefones (vírgula):</label><input type="text" name="telefones" placeholder="Ex: 11999999999, 11888888888" required></div>
+                    <label>Nível Permissão:</label><select name="nivelPermissao" required>
+                        <option value="0">0 — Usuário comum</option>
+                        <option value="1">1 — Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Telefones (vírgula):</label><input type="text" name="telefones"
+                        placeholder="Ex: 11999999999, 11888888888" required></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
                     <button type="button" class="btn-secondary" id="btn-listar-usuarios">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-usuarios" onclick="toggleFilterBox('usuarios')">Deletar por ID</button>
-                    <button type="button" class="btn-secondary" onclick="limparFormulario('form-usuario')">Limpar</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-usuarios"
+                        onclick="toggleFilterBox('usuarios')">Deletar por ID</button>
+                    <button type="button" class="btn-secondary"
+                        onclick="limparFormulario('form-usuario')">Limpar</button>
                 </div>
             </form>
             <div class="filter-box">
                 <input type="number" id="delete-id-usuarios" placeholder="ID para deletar" min="1">
                 <button id="btn-confirm-delete-usuarios" class="btn-danger">Confirmar Exclusão</button>
             </div>
-            <table id="tabela-usuarios"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Email</th><th>Permissão</th><th>Tel.</th><th>Ações</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-usuarios">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Nascimento</th>
+                        <th>Email</th>
+                        <th>Permissão</th>
+                        <th>Tel.</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </section>
 
         <!-- Seção Empréstimos -->
         <section id="emprestimos">
             <h2>Empréstimo</h2>
             <form id="form-emprestimo">
-                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="emprestimo-id" min="1" placeholder="para atualizar"></div>
-                <div class="form-group"><label>ID Livro:</label><input type="number" name="idLivro" min="1" required></div>
-                <div class="form-group"><label>ID Usuário:</label><input type="number" name="idUsuario" min="1" required></div>
+                <div class="form-group hidden"><label>ID:</label><input type="number" name="id" id="emprestimo-id"
+                        min="1" placeholder="para atualizar"></div>
+                <div class="form-group"><label>ID Livro:</label><input type="number" name="idLivro" min="1" required>
+                </div>
+                <div class="form-group"><label>ID Usuário:</label><input type="number" name="idUsuario" min="1"
+                        required></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar (Criar)</button>
                     <button type="button" class="btn-secondary" id="btn-listar-emprestimos">Listar Todos</button>
-                    <button type="button" class="btn-danger" id="btn-deletar-emprestimo" onclick="toggleFilterBox('emprestimos')">Deletar por ID</button>
-                    <button type="button" class="btn-secondary" onclick="limparFormulario('form-emprestimo')">Limpar</button>
+                    <button type="button" class="btn-danger" id="btn-deletar-emprestimo"
+                        onclick="toggleFilterBox('emprestimos')">Deletar por ID</button>
+                    <button type="button" class="btn-secondary"
+                        onclick="limparFormulario('form-emprestimo')">Limpar</button>
                 </div>
             </form>
             <div class="filter-box">
@@ -140,15 +356,99 @@
                 <input type="number" id="filtro-livro-id" placeholder="ID do livro" min="1">
                 <button id="btn-filtrar-livro" class="btn-primary">Filtrar</button>
             </div>
-            <table id="tabela-emprestimos"><thead><tr><th>ID</th><th>Livro ID</th><th>Usuário ID</th><th>Devolvido</th><th>Empréstimo</th><th>Devolução</th><th>Ações</th></tr></thead><tbody></tbody></table>
+            <table id="tabela-emprestimos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Livro ID</th>
+                        <th>Usuário ID</th>
+                        <th>Devolvido</th>
+                        <th>Empréstimo</th>
+                        <th>Devolução</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Seção Associações -->
+        <section id="associacoes">
+            <h2>Associar Livros e Autores</h2>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <!-- Tabela de Livros -->
+                <div style="flex: 1;">
+                    <h3>Livros</h3>
+                    <table id="tabela-livros-assoc">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <!-- Tabela de Autores -->
+                <div style="flex: 1;">
+                    <h3>Autores</h3>
+                    <table id="tabela-autores-assoc">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Formulário de associação -->
+            <div style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
+                <h3>Vincular / Desvincular</h3>
+                <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div>
+                        <label>ID do Livro:</label>
+                        <input type="number" id="assoc-livro-id" placeholder="ID do livro" min="1">
+                    </div>
+                    <div>
+                        <label>ID do Autor:</label>
+                        <input type="number" id="assoc-autor-id" placeholder="ID do autor" min="1">
+                    </div>
+                    <div>
+                        <button id="btn-associar" class="btn-primary">Associar</button>
+                        <button id="btn-desassociar" class="btn-danger">Desassociar</button>
+                    </div>
+                </div>
+                <div id="assoc-mensagem" style="margin-top: 1rem; color: #2C1810;"></div>
+            </div>
+
+            <!-- Opcional: exibir as associações de um item selecionado -->
+            <div style="margin-top: 2rem;">
+                <h3>Associações existentes</h3>
+                <div>
+                    <label>Consultar por:</label>
+                    <select id="consulta-tipo">
+                        <option value="livro">Livro (mostra autores)</option>
+                        <option value="autor">Autor (mostra livros)</option>
+                    </select>
+                    <input type="number" id="consulta-id" placeholder="ID">
+                    <button id="btn-consultar" class="btn-secondary">Consultar</button>
+                </div>
+                <div id="resultado-associacoes"
+                    style="margin-top: 1rem; background: #FDFAF5; padding: 1rem; border-radius: 8px;"></div>
+            </div>
         </section>
     </main>
 
     <script>
-        (function() {
+        (function () {
             // ---------- Navegação ----------
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     const sectionId = this.dataset.section;
@@ -159,16 +459,16 @@
             });
 
             // ---------- Helpers ----------
-            window.toggleFilterBox = function(secaoId) {
+            window.toggleFilterBox = function (secaoId) {
                 const filterBox = document.querySelector('#' + secaoId + ' .filter-box');
                 if (filterBox.style.display === 'flex') {
                     filterBox.style.display = 'none';
                 } else {
                     filterBox.style.display = 'flex';
                 }
-                
+
             };
-            window.limparFormulario = function(formId) {
+            window.limparFormulario = function (formId) {
                 const form = document.getElementById(formId);
                 if (form) {
                     form.reset();
@@ -248,17 +548,17 @@
                         try {
                             const lista = await fetchJSON(endpoint);
                             montarTabela(tabela, lista, colunas, (item) => {
-                            const form = document.getElementById(formId);
-                            const idInput = form.querySelector('input[name="id"]');
-                            if (idInput) {
-                                idInput.value = item.id;
-                            }
-                            camposEditar.forEach(campo => {
-                                const input = form.querySelector(`input[name="${campo.nome}"]`);
-                                if (input) input.value = campo.extrator(item);
+                                const form = document.getElementById(formId);
+                                const idInput = form.querySelector('input[name="id"]');
+                                if (idInput) {
+                                    idInput.value = item.id;
+                                }
+                                camposEditar.forEach(campo => {
+                                    const input = form.querySelector(`input[name="${campo.nome}"]`);
+                                    if (input) input.value = campo.extrator(item);
+                                });
+                                form.scrollIntoView({ behavior: 'smooth' });
                             });
-                            form.scrollIntoView({ behavior: 'smooth' });
-                        });
                         } catch (e) {
                             mostrarMensagem('Erro ao listar: ' + e.message, true);
                         }
@@ -323,16 +623,18 @@
                 configurarCRUD('autores', '/autores', 'form-autor', 'tabela-autores', [
                     { extrator: a => a.id },
                     { extrator: a => a.nome },
-                    { extrator: a => {
-                        const d = a.dataNascimento;
-                        if (!d || d.length !== 8) return d;
-                        return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // formata a data colocada para aparecer na tabela de listagem como DD/MM/AAAA
-                    }},
+                    {
+                        extrator: a => {
+                            const d = a.dataNascimento;
+                            if (!d || d.length !== 8) return d;
+                            return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // formata a data colocada para aparecer na tabela de listagem como DD/MM/AAAA
+                        }
+                    },
                     { extrator: a => a.nacionalidade }
                 ], [], [
-                    { nome: 'nome',            extrator: a => a.nome },
-                    { nome: 'dataNascimento',  extrator: a => a.dataNascimento },
-                    { nome: 'nacionalidade',   extrator: a => a.nacionalidade }
+                    { nome: 'nome', extrator: a => a.nome },
+                    { nome: 'dataNascimento', extrator: a => a.dataNascimento },
+                    { nome: 'nacionalidade', extrator: a => a.nacionalidade }
                 ]);
 
                 // Livros
@@ -344,31 +646,33 @@
                     { extrator: l => Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias },
                     { extrator: l => l.quantidade }
                 ], ['categorias'], [
-                    { nome: 'titulo',        extrator: l => l.titulo },
+                    { nome: 'titulo', extrator: l => l.titulo },
                     { nome: 'anoPublicacao', extrator: l => l.ano_publicacao },
-                    { nome: 'ISBN',          extrator: l => l.isbn },
-                    { nome: 'categorias',    extrator: l => Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias },
-                    { nome: 'quantidade',    extrator: l => l.quantidade }
+                    { nome: 'ISBN', extrator: l => l.isbn },
+                    { nome: 'categorias', extrator: l => Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias },
+                    { nome: 'quantidade', extrator: l => l.quantidade }
                 ]);
 
                 // Usuários
                 configurarCRUD('usuarios', '/usuarios', 'form-usuario', 'tabela-usuarios', [
                     { extrator: u => u.id },
                     { extrator: u => u.nome },
-                    { extrator: u => {
-                        const d = u.dataNascimento;
-                        if (!d || d.length !== 8) return d;
-                        return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
-                    }},
+                    {
+                        extrator: u => {
+                            const d = u.dataNascimento;
+                            if (!d || d.length !== 8) return d;
+                            return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // data formatada dd/mm/aaaa
+                        }
+                    },
                     { extrator: u => u.email },
                     { extrator: u => u.nivelPermissao },
                     { extrator: u => Array.isArray(u.telefones) ? u.telefones.join(', ') : u.telefones }
                 ], ['telefones'], [
-                    { nome: 'nome',           extrator: u => u.nome },
+                    { nome: 'nome', extrator: u => u.nome },
                     { nome: 'dataNascimento', extrator: u => u.dataNascimento },
-                    { nome: 'email',          extrator: u => u.email },
+                    { nome: 'email', extrator: u => u.email },
                     { nome: 'nivelPermissao', extrator: u => u.nivelPermissao },
-                    { nome: 'telefones',      extrator: u => Array.isArray(u.telefones) ? u.telefones.join(', ') : u.telefones }
+                    { nome: 'telefones', extrator: u => Array.isArray(u.telefones) ? u.telefones.join(', ') : u.telefones }
                 ]);
 
                 // ---------- Empréstimos (especial) ----------
@@ -395,34 +699,38 @@
                                 { extrator: e => e.idLivro },
                                 { extrator: e => e.idUsuario },
                                 { extrator: e => e.devolvido ? 'Sim' : 'Não' },
-                                { extrator: e => {
-                                    const d = e.dataEmprestimo;
-                                    if (!d || d.length !== 8) return d;
-                                    return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
-                                }},
-                                { extrator: e => {
-                                    const d = e.dataDevolucao;
-                                    if (!d || d.length !== 8) return d;
-                                    return d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4); // data formatada dd/mm/aaaa
-                                }} 
-                                ], (emp) => {
-                                    console.log('Editar clicado', emp);
-                                    if (emp.devolvido) return;
-                                    if (!confirm('Confirmar devolução do empréstimo #' + emp.id + '?')) return; 
-                                    const params = new URLSearchParams();
-                                    params.append('id', emp.id);
-                                    params.append('idLivro', emp.idLivro);
-                                    params.append('idUsuario', emp.idUsuario);
-                                    params.append('devolvido', 'true');
-                                    params.append('dataEmprestimo', emp.dataEmprestimo);
-                                    params.append('dataDevolucao', emp.dataDevolucao);
+                                {
+                                    extrator: e => {
+                                        const d = e.dataEmprestimo;
+                                        if (!d || d.length !== 8) return d;
+                                        return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // data formatada dd/mm/aaaa
+                                    }
+                                },
+                                {
+                                    extrator: e => {
+                                        const d = e.dataDevolucao;
+                                        if (!d || d.length !== 8) return d;
+                                        return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // data formatada dd/mm/aaaa
+                                    }
+                                }
+                            ], (emp) => {
+                                console.log('Editar clicado', emp);
+                                if (emp.devolvido) return;
+                                if (!confirm('Confirmar devolução do empréstimo #' + emp.id + '?')) return;
+                                const params = new URLSearchParams();
+                                params.append('id', emp.id);
+                                params.append('idLivro', emp.idLivro);
+                                params.append('idUsuario', emp.idUsuario);
+                                params.append('devolvido', 'true');
+                                params.append('dataEmprestimo', emp.dataEmprestimo);
+                                params.append('dataDevolucao', emp.dataDevolucao);
 
-                                    fetch(`/emprestimos/${emp.id}`, {
-                                        method: 'PUT',
-                                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                        body: params.toString()
-                                    }).then(() => btnListarEmp.click());
-                                }, (emp) => emp.devolvido ? 'Devolvido' : 'Marcar como devolvido');
+                                fetch(`/emprestimos/${emp.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                    body: params.toString()
+                                }).then(() => btnListarEmp.click());
+                            }, (emp) => emp.devolvido ? 'Devolvido' : 'Marcar como devolvido');
                         } catch (err) {
                             mostrarMensagem('Erro ao listar: ' + err.message, true);
                         }
@@ -501,6 +809,175 @@
                 document.querySelectorAll('.form-group.hidden').forEach(el => el.style.display = 'none');
             });
         })();
+
+        // ---------- Aba "Associações" ----------
+        function carregarTabelasAssociacoes() {
+            // Carregar livros
+            fetch('/livros')
+                .then(res => res.json())
+                .then(livros => {
+                    const tbody = document.querySelector('#tabela-livros-assoc tbody');
+                    tbody.innerHTML = '';
+                    livros.forEach(livro => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                    <td>${livro.id}</td>
+                    <td>${livro.titulo}</td>
+                    <td><button class="selecionar-livro" data-id="${livro.id}">Selecionar</button></td>
+                `;
+                        tbody.appendChild(tr);
+                    });
+                    // Adicionar evento nos botões "Selecionar"
+                    document.querySelectorAll('#tabela-livros-assoc .selecionar-livro').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.getElementById('assoc-livro-id').value = btn.dataset.id;
+                        });
+                    });
+                })
+                .catch(err => console.error('Erro ao carregar livros:', err));
+
+            // Carregar autores
+            fetch('/autores')
+                .then(res => res.json())
+                .then(autores => {
+                    const tbody = document.querySelector('#tabela-autores-assoc tbody');
+                    tbody.innerHTML = '';
+                    autores.forEach(autor => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                    <td>${autor.id}</td>
+                    <td>${autor.nome}</td>
+                    <td><button class="selecionar-autor" data-id="${autor.id}">Selecionar</button></td>
+                `;
+                        tbody.appendChild(tr);
+                    });
+                    document.querySelectorAll('#tabela-autores-assoc .selecionar-autor').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.getElementById('assoc-autor-id').value = btn.dataset.id;
+                        });
+                    });
+                })
+                .catch(err => console.error('Erro ao carregar autores:', err));
+        }
+
+        // Associar
+        document.getElementById('btn-associar')?.addEventListener('click', async () => {
+            const idLivro = document.getElementById('assoc-livro-id').value;
+            const idAutor = document.getElementById('assoc-autor-id').value;
+            if (!idLivro || !idAutor) {
+                mostrarMensagem('Preencha ambos os IDs.', true);
+                return;
+            }
+            try {
+                const response = await fetch(`/autores/${idAutor}/livros`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `idLivro=${idLivro}`
+                });
+                if (response.ok) {
+                    mostrarMensagem('Associação criada com sucesso!');
+                    document.getElementById('assoc-mensagem').innerHTML = '<span style="color:green;">✓ Vinculado</span>';
+                    setTimeout(() => document.getElementById('assoc-mensagem').innerHTML = '', 3000);
+                } else {
+                    const erro = await response.text();
+                    mostrarMensagem('Erro: ' + erro, true);
+                }
+            } catch (err) {
+                mostrarMensagem('Erro na requisição: ' + err.message, true);
+            }
+        });
+
+        // Desassociar
+        document.getElementById('btn-desassociar')?.addEventListener('click', async () => {
+            const idLivro = document.getElementById('assoc-livro-id').value;
+            const idAutor = document.getElementById('assoc-autor-id').value;
+            if (!idLivro || !idAutor) {
+                mostrarMensagem('Preencha ambos os IDs.', true);
+                return;
+            }
+            try {
+                const response = await fetch(`/autores/${idAutor}/livros/${idLivro}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    mostrarMensagem('Associação removida.');
+                    document.getElementById('assoc-mensagem').innerHTML = '<span style="color:red;">✗ Desvinculado</span>';
+                    setTimeout(() => document.getElementById('assoc-mensagem').innerHTML = '', 3000);
+                } else {
+                    const erro = await response.text();
+                    mostrarMensagem('Erro: ' + erro, true);
+                }
+            } catch (err) {
+                mostrarMensagem('Erro na requisição: ' + err.message, true);
+            }
+        });
+
+        // Consultar associações
+        document.getElementById('btn-consultar')?.addEventListener('click', async () => {
+            const tipo = document.getElementById('consulta-tipo').value;
+            const id = document.getElementById('consulta-id').value;
+            if (!id) {
+                mostrarMensagem('Informe um ID.', true);
+                return;
+            }
+
+            const div = document.getElementById('resultado-associacoes');
+            div.innerHTML = '<p>Carregando...</p>';
+
+            try {
+                let nomeEntidade = '';
+                let dadosAssociacao = [];
+
+                if (tipo === 'livro') {
+                    // 1. Buscar o nome do livro
+                    const respLivro = await fetch(`/livros/${id}`);
+                    if (!respLivro.ok) throw new Error('Livro não encontrado');
+                    const livro = await respLivro.json();
+                    nomeEntidade = livro.titulo;
+
+                    // 2. Buscar os autores associados
+                    const respAutores = await fetch(`/livros/${id}/autores`);
+                    if (!respAutores.ok) throw new Error('Erro ao buscar autores');
+                    dadosAssociacao = await respAutores.json();
+                } else {
+                    // tipo === 'autor'
+                    const respAutor = await fetch(`/autores/${id}`);
+                    if (!respAutor.ok) throw new Error('Autor não encontrado');
+                    const autor = await respAutor.json();
+                    nomeEntidade = autor.nome;
+
+                    const respLivros = await fetch(`/autores/${id}/livros`);
+                    if (!respLivros.ok) throw new Error('Erro ao buscar livros');
+                    dadosAssociacao = await respLivros.json();
+                }
+
+                if (dadosAssociacao.length === 0) {
+                    div.innerHTML = `<p>Nenhum vínculo encontrado para ${tipo === 'livro' ? 'o livro' : 'o autor'} <strong>${nomeEntidade} (${id})</strong>.</p>`;
+                } else {
+                    if (tipo === 'livro') {
+                        div.innerHTML = `
+                    <strong>Autores do livro "${nomeEntidade}" (${id}):</strong>
+                    <ul>${dadosAssociacao.map(a => `<li>${a.id} - ${a.nome}</li>`).join('')}</ul>
+                `;
+                    } else {
+                        div.innerHTML = `
+                    <strong>Livros do autor "${nomeEntidade}" (${id}):</strong>
+                    <ul>${dadosAssociacao.map(l => `<li>${l.id} - ${l.titulo}</li>`).join('')}</ul>
+                `;
+                    }
+                }
+            } catch (err) {
+                div.innerHTML = `<span style="color:red;">Erro: ${err.message}</span>`;
+            }
+        });
+
+        // Carregar as tabelas sempre que a aba for ativada (opcional)
+        document.querySelector('[data-section="associacoes"]')?.addEventListener('click', () => {
+            carregarTabelasAssociacoes();
+        });
+        // Também carrega na primeira vez que a página é aberta
+        carregarTabelasAssociacoes();
     </script>
 </body>
+
 </html>

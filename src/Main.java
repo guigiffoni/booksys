@@ -11,73 +11,175 @@ import java.nio.file.Paths;
 import com.sun.net.httpserver.*;
 
 import src.controller.Controller;
+import src.dao.Dao;
 import src.model.Autor;
 import src.model.Emprestimo;
 import src.model.Livro;
 import src.model.Usuario;
+import src.util.IndiceRelacionalNN;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        Controller<Autor> autorController = new Controller<>(
-                "autores.dat",
-                Autor::fromBytes,
-                Autor::formToInstance);
-        server.createContext("/autores", autorController.orchestrator());
+        // DAOs compartilhados para Autor e Livro
+        Dao<Autor> autorDao = new Dao<>(
+            "autores.dat", 
+            Autor::fromBytes,
+            Autor::formToInstance
+        );
+        Dao<Livro> livroDao = new Dao<>(
+            "livros.dat", 
+            Livro::fromBytes,
+            Livro::formToInstance
+        );
 
+        // Índice N:N
+        IndiceRelacionalNN indiceAssociacao = new IndiceRelacionalNN(autorDao, livroDao);
+
+        // Controllers
+        Controller<Autor> autorController = new Controller<>(autorDao);
+        Controller<Livro> livroController = new Controller<>(livroDao);
         Controller<Emprestimo> emprestimoController = new Controller<>(
-                "emprestimos.dat",
-                Emprestimo::fromBytes,
-                Emprestimo::formToInstance);
-        server.createContext("/emprestimos", emprestimoController.orchestrator());
+                "emprestimos.dat", Emprestimo::fromBytes, Emprestimo::formToInstance);
+        Controller<Usuario> usuarioController = new Controller<>(
+                "usuarios.dat", Usuario::fromBytes, Usuario::formToInstance);
 
-        Controller<Livro> livroController = new Controller<Livro>(
-                "livros.dat",
-                Livro::fromBytes,
-                Livro::formToInstance);
-
-        Controller<Usuario> usuarioController = new Controller<Usuario>(
-                "usuarios.dat",
-                Usuario::fromBytes,
-                Usuario::formToInstance);
-        server.createContext("/usuarios", usuarioController.orchestrator());
-
-        server.createContext("/livros", exchange -> {
+        // --- Contexto unificado para /autores ---
+        server.createContext("/autores", exchange -> {
             String method = exchange.getRequestMethod();
-            String uriPath = exchange.getRequestURI().getPath();
-            String[] segments = uriPath.split("/");
+            String path = exchange.getRequestURI().getPath();
+            String[] segments = path.split("/");
 
-            if ("GET".equals(method)
-                    && segments.length == 4
-                    && segments[2].matches("\\d+")
-                    && segments[3].equals("emprestimos")) {
-
-                short idLivro = Short.parseShort(segments[2]);
-                String json;
-                json = emprestimoController.listarPorLivro(idLivro);
-                byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-                exchange.sendResponseHeaders(200, bytes.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(bytes);
+            // POST /autores/{idAutor}/livros
+            if ("POST".equals(method) && segments.length == 4 && "livros".equals(segments[3])) {
+                try {
+                    int idAutor = Integer.parseInt(segments[2]);
+                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    String[] params = body.split("&");
+                    int idLivro = -1;
+                    for (String p : params) {
+                        String[] kv = p.split("=");
+                        if (kv.length == 2 && "idLivro".equals(kv[0])) {
+                            idLivro = Integer.parseInt(kv[1]);
+                            break;
+                        }
+                    }
+                    if (idLivro == -1) throw new IllegalArgumentException("idLivro não informado");
+                    indiceAssociacao.vincular(idAutor, idLivro);
+                    exchange.sendResponseHeaders(200, 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(400, -1);
+                } finally {
+                    exchange.close();
                 }
-                exchange.close();
                 return;
             }
 
-            // Todas as demais rotas de Livros -> controller generico
+            // DELETE /autores/{idAutor}/livros/{idLivro}
+            if ("DELETE".equals(method) && segments.length == 5 && "livros".equals(segments[3])) {
+                try {
+                    int idAutor = Integer.parseInt(segments[2]);
+                    int idLivro = Integer.parseInt(segments[4]);
+                    indiceAssociacao.desvincular(idAutor, idLivro);
+                    exchange.sendResponseHeaders(200, 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(404, -1);
+                } finally {
+                    exchange.close();
+                }
+                return;
+            }
+
+            // GET /autores/{idAutor}/livros
+            if ("GET".equals(method) && segments.length == 4 && "livros".equals(segments[3])) {
+                try {
+                    int idAutor = Integer.parseInt(segments[2]);
+                    var livros = indiceAssociacao.listarLivrosDoAutor(idAutor);
+                    String json = livrosToJson(livros);
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, bytes.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(bytes);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+                return;
+            }
+
+            // Demais rotas: delegar ao controller original
+            autorController.orchestrator().handle(exchange);
+        });
+
+        // --- Contexto unificado para /livros ---
+        server.createContext("/livros", exchange -> {
+            String method = exchange.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
+            String[] segments = path.split("/");
+
+            // GET /livros/{id}/autores (nova rota)
+            if ("GET".equals(method) && segments.length == 4 && "autores".equals(segments[3])) {
+                try {
+                    int idLivro = Integer.parseInt(segments[2]);
+                    var autores = indiceAssociacao.listarAutoresDoLivro(idLivro);
+                    String json = autoresToJson(autores);
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, bytes.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(bytes);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+                return;
+            }
+
+            // GET /livros/{id}/emprestimos (rota original)
+            if ("GET".equals(method) && segments.length == 4 && "emprestimos".equals(segments[3])) {
+                try {
+                    short idLivro = Short.parseShort(segments[2]);
+                    String json = emprestimoController.listarPorLivro(idLivro);
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, bytes.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(bytes);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+                return;
+            }
+
+            // Demais rotas: delegar ao controller original de livros
             livroController.orchestrator().handle(exchange);
         });
 
+        // Contextos simples para as demais entidades
+        server.createContext("/emprestimos", emprestimoController.orchestrator());
+        server.createContext("/usuarios", usuarioController.orchestrator());
+
+        // Servir o arquivo HTML
         server.createContext("/index.html", exchange -> {
             try {
                 Path filePath = Paths.get("src/view/index.html");
                 byte[] fileContent = Files.readAllBytes(filePath);
-
                 exchange.getResponseHeaders().set("Content-Type", "text/html");
                 exchange.sendResponseHeaders(200, fileContent.length);
-
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(fileContent);
                 }
@@ -87,7 +189,28 @@ public class Main {
             }
         });
 
-        System.out.println("http://127.0.0.1:8080/index.html");
+        System.out.println("Servidor rodando em http://127.0.0.1:8080/index.html");
         server.start();
+    }
+
+    // Métodos auxiliares para conversão JSON
+    private static String livrosToJson(java.util.List<Livro> livros) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < livros.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(livros.get(i).toJson());
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private static String autoresToJson(java.util.List<Autor> autores) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < autores.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(autores.get(i).toJson());
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

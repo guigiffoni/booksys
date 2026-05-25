@@ -89,6 +89,7 @@ public class IndiceHash {
         rafBkt.seek(b.offset);
         rafBkt.writeShort(b.profLocal);
         rafBkt.writeShort(b.numReg);
+        
         for (int i = 0; i < SLOTS_POR_Balde; i++) {
             rafBkt.writeShort(i < b.numReg ? b.chaves[i] : -1);
             rafBkt.writeShort(i < b.numReg ? b.valores[i] : -1);

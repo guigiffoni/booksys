@@ -23,6 +23,13 @@ public class Dao<T extends Registro> {
     private Function<byte[], T> fromBytes;
     private Function<HashMap<String, Object>, T> formToInstance;
 
+    public Dao(String nomeArquivo, Function<byte[], T> fromBytes) throws IOException {
+        this.nomeArquivo = nomeArquivo;
+        this.fromBytes = fromBytes;
+
+        inicializaArquivo();
+    }
+
     public Dao(
         String nomeArquivo, 
         Function<byte[], T> fromBytes,

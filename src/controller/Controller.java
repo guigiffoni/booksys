@@ -20,6 +20,10 @@ public class Controller<T extends Registro> {
     protected String nomeArquivo;
     protected Dao<T> dao;
 
+    public Controller(Dao<T> dao) {
+        this.dao = dao;
+    }
+
     public Controller(
         String nomeArquivo,
         Function<byte[], T> fromBytes,
