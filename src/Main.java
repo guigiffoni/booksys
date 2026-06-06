@@ -18,6 +18,7 @@ import src.model.Livro;
 import src.model.Usuario;
 import src.util.IndiceRelacionalNN;
 import src.util.Huffman;
+import src.util.Lzw;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -25,12 +26,12 @@ public class Main {
 
         // DAOs compartilhados para Autor e Livro
         Dao<Autor> autorDao = new Dao<>(
-            "autores.dat", 
+            "autores.dat",
             Autor::fromBytes,
             Autor::formToInstance
         );
         Dao<Livro> livroDao = new Dao<>(
-            "livros.dat", 
+            "livros.dat",
             Livro::fromBytes,
             Livro::formToInstance
         );
@@ -222,7 +223,7 @@ public class Main {
                 return;
             }
         });
-        
+
         // Servir o arquivo HTML
         server.createContext("/index.html", exchange -> {
             try {
@@ -236,6 +237,75 @@ public class Main {
             } catch (IOException e) {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(500, -1);
+            }
+        });
+
+        server.createContext("/compactar", exchange -> {
+            if (!"POST".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+                return;
+            }
+            try {
+                String body = new String(
+                        exchange.getRequestBody().readAllBytes(),
+                        StandardCharsets.UTF_8);
+
+                String arquivo = null;
+                String acao    = null;
+
+                for (String par : body.split("&")) {
+                    String[] kv = par.split("=", 2);
+                    if (kv.length == 2) {
+                        switch (kv[0]) {
+                            case "arquivo" -> arquivo = java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                            case "acao"    -> acao    = kv[1];
+                        }
+                    }
+                }
+
+                if (arquivo == null || acao == null) {
+                    exchange.sendResponseHeaders(400, -1);
+                    exchange.close();
+                    return;
+                }
+
+                long bytes;
+                String nomeResultado;
+
+                switch (acao) {
+                    case "comprimir" -> {
+                        bytes = Lzw.comprimir(arquivo);
+                        nomeResultado = arquivo + ".lzw";
+                    }
+                    case "descomprimir" -> {
+                        bytes = Lzw.descomprimir(arquivo);
+                        nomeResultado = arquivo.endsWith(".lzw")
+                                ? arquivo.substring(0, arquivo.length() - 4)
+                                : arquivo + ".descomprimido";
+                    }
+                    default -> {
+                        exchange.sendResponseHeaders(400, -1);
+                        exchange.close();
+                        return;
+                    }
+                }
+
+                String json = String.format(
+                        "{\"arquivo\":\"%s\",\"bytes\":%d}",
+                        nomeResultado, bytes);
+                byte[] respBytes = json.getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type",
+                        "application/json; charset=UTF-8");
+                exchange.sendResponseHeaders(200, respBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(respBytes);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            } finally {
+                exchange.close();
             }
         });
 
