@@ -17,6 +17,7 @@ import src.model.Emprestimo;
 import src.model.Livro;
 import src.model.Usuario;
 import src.util.IndiceRelacionalNN;
+import src.util.Huffman;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -173,6 +174,55 @@ public class Main {
         server.createContext("/emprestimos", emprestimoController.orchestrator());
         server.createContext("/usuarios", usuarioController.orchestrator());
 
+        // --- Huffman - compactação e descompactação ---
+        server.createContext("/huffman", exchange -> {
+            String method = exchange.getRequestMethod();
+            String[] segments = exchange.getRequestURI().getPath().split("/");
+            byte[] body = exchange.getRequestBody().readAllBytes();
+            String nomeArquivo = new String(body, StandardCharsets.UTF_8).replace("arquivo=", "").trim();
+            String caminhoOriginal = "data/" + nomeArquivo;
+
+            // POST /huffman/comprimir
+            if ("POST".equals(method) && segments.length == 3 && "comprimir".equals(segments[2])) {
+                try {
+                    byte[] dados = Files.readAllBytes(Paths.get(caminhoOriginal));
+                    byte[] comprimido = Huffman.comprimir(dados);
+                    Files.write(Paths.get(caminhoOriginal + ".huff"), comprimido);
+                    String resposta = "{\"mensagem\":\"Arquivo comprimido com sucesso\",\"original\":" + dados.length + ",\"comprimido\":" + comprimido.length + "}";
+                    byte[] bytes = resposta.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, bytes.length);
+                    exchange.getResponseBody().write(bytes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+                return;
+            }
+
+            // POST /huffman/descomprimir
+            if ("POST".equals(method) && segments.length == 3 && "descomprimir".equals(segments[2])) {
+                try {
+                    byte[] dados = Files.readAllBytes(Paths.get(caminhoOriginal + ".huff"));
+                    byte[] descomprimido = Huffman.descomprimir(dados);
+                    Files.write(Paths.get(caminhoOriginal + ".dec"), descomprimido);
+                    String resposta = "{\"mensagem\":\"Arquivo descomprimido com sucesso\"}";
+                    byte[] bytes = resposta.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, bytes.length);
+                    exchange.getResponseBody().write(bytes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+                return;
+            }
+        });
+        
         // Servir o arquivo HTML
         server.createContext("/index.html", exchange -> {
             try {

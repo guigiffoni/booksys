@@ -198,6 +198,7 @@
         <button class="nav-btn" data-section="usuarios">Usuários</button>
         <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
         <button class="nav-btn" data-section="associacoes">Associações</button>
+        <button class="nav-btn" data-section="compactacao">Compactação</button>
     </nav>
     <main>
         <!-- Seção Autores -->
@@ -371,6 +372,25 @@
                 <tbody></tbody>
             </table>
         </section>
+
+        <!-- Seção Compactação -->
+        <section id="compactacao">
+            <h2>Compactação de Arquivos</h2>
+            <div class="form-group">
+                <label>Arquivo:</label>
+                <select id="arquivo-compactar">
+                <option value="livros.dat">livros.dat</option>
+                select>
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" onclick="compactar()">Compactar (Huffman)</button>
+                <button class="btn-secondary" onclick="descompactar()">Descompactar</button>
+            </div>
+            <div id="resultado-compactacao" style="margin-top:1rem;font-size:13px"></div>
+            </section> <option value="autores.dat">autores.dat</option>
+                <option value="usuarios.dat">usuarios.dat</option>
+                <option value="emprestimos.dat">emprestimos.dat</option>
+                </
 
         <!-- Seção Associações -->
         <section id="associacoes">
@@ -977,6 +997,36 @@
         });
         // Também carrega na primeira vez que a página é aberta
         carregarTabelasAssociacoes();
+
+    
+         // ---------- Aba "Compactações" ----------
+        // Compactação
+        function compactar() {
+            const arquivo = document.getElementById('arquivo-compactar').value;
+            fetch('/huffman/comprimir', {
+                method: 'POST',
+                body: 'arquivo=' + arquivo
+            })
+            .then(r => r.json())
+            .then(res => {
+                const div = document.getElementById('resultado-compactacao');
+                const taxa = (100 - (res.comprimido / res.original * 100)).toFixed(1);
+                div.textContent = 'Comprimido: ' + res.original + ' bytes → ' + res.comprimido + ' bytes (' + taxa + '% de redução)';
+            });
+        }
+
+        // Descompactação
+        function descompactar() {
+            const arquivo = document.getElementById('arquivo-compactar').value;
+            fetch('/huffman/descomprimir', {
+                method: 'POST',
+                body: 'arquivo=' + arquivo
+            })
+            .then(r => r.json())
+            .then(res => {
+                document.getElementById('resultado-compactacao').textContent = res.mensagem;
+            });
+        }
     </script>
 </body>
 
