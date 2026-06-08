@@ -8,7 +8,9 @@ import java.util.HashMap;
 public class Lzw {
 
     private static final int TAMANHO_INICIAL = 256;
-    private static final int MAX_DICT = 4096; // 12 bits
+    private static final int MAX_DICT = 4096;
+    private static final int LARGURA_INICIAL = 6;
+    private static final int LARGURA_MAXIMA = 12;
 
     private static final String PATH = "data/";
 
@@ -24,30 +26,38 @@ public class Lzw {
         byte[] comprimido = Files.readAllBytes(Paths.get(PATH + nomeArquivo));
         byte[] restaurado = descomprimirBytes(comprimido);
 
-        // Remove extensão .lzw para obter o nome original
         String nomeOriginal = nomeArquivo.endsWith(".lzw")
-            ? nomeArquivo.substring(0, nomeArquivo.length() - 4)
-            : nomeArquivo + ".descomprimido";
+                ? nomeArquivo.substring(0, nomeArquivo.length() - 4)
+                : nomeArquivo + ".descomprimido";
 
         Path destino = Paths.get(PATH + nomeOriginal);
         Files.write(destino, restaurado);
         return restaurado.length;
     }
 
-    // comprime usando lzw e retorna os bytes do arquivo (cabeçalho + sódigos)
     public static byte[] comprimirBytes(byte[] entrada) throws IOException {
-        // dicionário: sequência de bytes → código
+        if (entrada.length == 0) {
+            // arquivo vazio: apenas cabeçalho com tamanho 0
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+            dos.writeInt(0);
+            dos.flush();
+            return baos.toByteArray();
+        }
+
         HashMap<String, Integer> dict = new HashMap<>(MAX_DICT);
         for (int i = 0; i < TAMANHO_INICIAL; i++) {
             dict.put(String.valueOf((char) i), i);
         }
+
         int proximoCodigo = TAMANHO_INICIAL;
+        int larguraAtual = LARGURA_INICIAL;
 
-        ArrayList<Integer> codigos = new ArrayList<>();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.writeInt(entrada.length);
 
-        if (entrada.length == 0) {
-            return montarArquivo(0, codigos);
-        }
+        BitOutputStream bos = new BitOutputStream(baos);
 
         String prefixo = String.valueOf((char) (entrada[0] & 0xFF));
 
@@ -58,42 +68,42 @@ public class Lzw {
             if (dict.containsKey(prefixoMaisC)) {
                 prefixo = prefixoMaisC;
             } else {
-                codigos.add(dict.get(prefixo));
+                // emite o código do prefixo com a largura atual
+                bos.writeBits(dict.get(prefixo), larguraAtual);
 
+                // adiciona ao dicionário se ainda couber
                 if (proximoCodigo < MAX_DICT) {
                     dict.put(prefixoMaisC, proximoCodigo++);
+                    // aumenta a largura quando o próximo código ultrapassar (1 << largura)
+                    if (proximoCodigo > (1 << larguraAtual) && larguraAtual < LARGURA_MAXIMA) {
+                        larguraAtual++;
+                    }
                 }
                 prefixo = String.valueOf(c);
             }
         }
 
-        // Emite o último prefixo
-        codigos.add(dict.get(prefixo));
+        bos.writeBits(dict.get(prefixo), larguraAtual);
 
-        return montarArquivo(entrada.length, codigos);
+        bos.close();
+        dos.flush();
+        return baos.toByteArray();
     }
 
-    // descomprime os nytes produzidos
-    public static byte[] descomprimirBytes(byte[] comprimido)
-        throws IOException {
-        DataInputStream dis = new DataInputStream(
-            new ByteArrayInputStream(comprimido)
-        );
+    public static byte[] descomprimirBytes(byte[] comprimido) throws IOException {
+        if (comprimido.length == 0)
+            return new byte[0];
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(comprimido);
+        DataInputStream dis = new DataInputStream(bais);
 
         int tamanhoOriginal = dis.readInt();
-
-        // Lê os códigos
-        int numCodigos = (comprimido.length - 4) / 2;
-        int[] codigos = new int[numCodigos];
-        for (int i = 0; i < numCodigos; i++) {
-            codigos[i] = dis.readShort() & 0xFFFF;
-        }
-
-        if (numCodigos == 0) {
+        if (tamanhoOriginal == 0)
             return new byte[0];
-        }
 
-        // Dicionário: código → sequência de bytes
+        BitInputStream bis = new BitInputStream(bais);
+
+        // dicionário: código -> sequência de bytes
         ArrayList<byte[]> dict = new ArrayList<>(MAX_DICT);
         for (int i = 0; i < TAMANHO_INICIAL; i++) {
             dict.add(new byte[] { (byte) i });
@@ -101,33 +111,48 @@ public class Lzw {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream(tamanhoOriginal);
 
+        int larguraAtual = LARGURA_INICIAL;
+        int proximoCodigo = TAMANHO_INICIAL;
+
         // primeiro código
-        byte[] entrada = dict.get(codigos[0]);
-        baos.write(entrada);
-        byte[] anterior = entrada;
+        int codigo = bis.readBits(larguraAtual);
+        if (codigo == -1)
+            return new byte[0];
 
-        for (int i = 1; i < numCodigos; i++) {
-            int codigo = codigos[i];
+        byte[] entradaAtual = dict.get(codigo);
+        baos.write(entradaAtual);
+        byte[] anterior = entradaAtual;
+
+        while (baos.size() < tamanhoOriginal) {
+            if (proximoCodigo >= (1 << larguraAtual) && larguraAtual < LARGURA_MAXIMA) {
+                larguraAtual++;
+            }
+
+            int cod = bis.readBits(larguraAtual);
+            if (cod == -1)
+                break;
+
             byte[] atual;
-
-            if (codigo < dict.size()) {
-                atual = dict.get(codigo);
-            } else if (codigo == dict.size()) {
-                // caso código ainda não estja no dicionário
+            if (cod < dict.size()) {
+                atual = dict.get(cod);
+            } else if (cod == dict.size()) {
+                // caso especial: código ainda não adicionado
                 atual = new byte[anterior.length + 1];
                 System.arraycopy(anterior, 0, atual, 0, anterior.length);
                 atual[anterior.length] = anterior[0];
             } else {
-                throw new IOException("Código LZW inválido: " + codigo);
+                throw new IOException("Código LZW inválido: " + cod);
             }
 
             baos.write(atual);
 
+            // adiciona nova entrada ao dicionário
             if (dict.size() < MAX_DICT) {
                 byte[] novaEntrada = new byte[anterior.length + 1];
                 System.arraycopy(anterior, 0, novaEntrada, 0, anterior.length);
                 novaEntrada[anterior.length] = atual[0];
                 dict.add(novaEntrada);
+                proximoCodigo++;
             }
 
             anterior = atual;
@@ -136,22 +161,78 @@ public class Lzw {
         return baos.toByteArray();
     }
 
-    // monta o arquivo comprimido: 4 bytes de cabeçalho (tam original)
-    // seguidos dos códigos como shorts (2 bytes cada)
-    private static byte[] montarArquivo(
-        int tamanhoOriginal,
-        ArrayList<Integer> codigos
-    ) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(
-            4 + codigos.size() * 2
-        );
-        DataOutputStream dos = new DataOutputStream(baos);
+    private static class BitOutputStream implements Closeable {
+        private final OutputStream out;
+        private int buffer;
+        private int bitsNoBuffer;
 
-        dos.writeInt(tamanhoOriginal);
-        for (int codigo : codigos) {
-            dos.writeShort(codigo);
+        public BitOutputStream(OutputStream out) {
+            this.out = out;
+            this.buffer = 0;
+            this.bitsNoBuffer = 0;
         }
 
-        return baos.toByteArray();
+        // escreve os 'numBits' menos significativos de 'valor' (máx 32)
+        public void writeBits(int valor, int numBits) throws IOException {
+            if (numBits == 0) {
+                return;
+            }
+
+            // escreve bit a bit, começando pelo mais significativo
+            for (int i = numBits - 1; i >= 0; i--) {
+                int bit = (valor >> i) & 1;
+                buffer = (buffer << 1) | bit;
+                bitsNoBuffer++;
+                if (bitsNoBuffer == 8) {
+                    out.write(buffer);
+                    buffer = 0;
+                    bitsNoBuffer = 0;
+                }
+            }
+        }
+
+        // preenche o último byte com zeros e escreve
+        @Override
+        public void close() throws IOException {
+            if (bitsNoBuffer > 0) {
+                buffer <<= (8 - bitsNoBuffer);
+                out.write(buffer);
+                buffer = 0;
+                bitsNoBuffer = 0;
+            }
+        }
+    }
+
+    private static class BitInputStream {
+        private final InputStream in;
+        private int buffer;
+        private int bitsRestantes;
+
+        public BitInputStream(InputStream in) {
+            this.in = in;
+            this.buffer = 0;
+            this.bitsRestantes = 0;
+        }
+
+        // lê 'numBits' e retorna como inteiro; -1 se EOF durante a leitura
+        public int readBits(int numBits) throws IOException {
+            if (numBits == 0)
+                return 0;
+            int resultado = 0;
+            for (int i = 0; i < numBits; i++) {
+                if (bitsRestantes == 0) {
+                    int proximo = in.read();
+                    if (proximo == -1)
+                        return -1;
+                    buffer = proximo;
+                    bitsRestantes = 8;
+                }
+                // extrai o bit mais significativo
+                int bit = (buffer >> (bitsRestantes - 1)) & 1;
+                bitsRestantes--;
+                resultado = (resultado << 1) | bit;
+            }
+            return resultado;
+        }
     }
 }

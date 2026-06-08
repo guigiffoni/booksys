@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage[a4paper, margin={3cm, 2cm}]{geometry}
+
+\title{\textbf{Fase IV do Trabalho Prático de AEDs III}}
+\author{
+    Ana Luiza Ribas Ponciano \\
+    Guilherme Amaral Giffoni \\
+    João Lucas Gonçalves Teles \\
+    Lucas Medeiros Bougleux
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{enumerate}
+    \item Qual foi a taxa de compressão obtida com o algoritmo de Huffman?
+    \begin{enumerate}
+        \item \textbf{Tamanho do arquivo original} \\
+        O arquivo alvo de testes, livros.dat, tem 2453 bytes
+
+        \item \textbf{Tamanho do arquivo comprimido} \\
+        O arquivo comprimido, livros.dat.huff, tem 2152 bytes
+
+        \item \textbf{Cálculo da Taxa} \\
+        $$ \frac{T_{Original}}{T_{Comprimido}} = \frac{2453}{2152} = 1,13987 $$
+        1,14x menor (Fator)
+        $$ \frac{T_{Comprimido}}{T_{Original}} = \frac{2152}{2453} = 0,87729 $$
+        ou 87,72\% do tamanho original (Taxa)
+
+        \item \textbf{Interpretação do resultado} \\
+        O algorítmo de compressão Huffman apresentou compressão para o arquivo de livros, entretanto, testando com o arquivo com menos registros (8 registros), houve expansão, provavelmente porque temos poucas informações, ou seja, alta entropia; Testando com um arquivo maior, obtivemos os resultados já destacados.
+    \end{enumerate}
+
+    \newpage
+
+    \item Qual foi a taxa de compressão obtida com o algoritmo de LZW?
+    \begin{enumerate}
+        \item \textbf{Tamanho do arquivo original} \\
+        O arquivo alvo de testes, livro.dat, possui 2453 bytes
+
+        \item \textbf{Tamanho do arquivo comprimido} \\
+        O arquivo alvo de testes, livro.dat.lzw, possui 2582 bytes
+
+        \item \textbf{Cálculo da taxa} \\
+        $$ \frac{T_{Original}}{T_{Comprimido}} = \frac{2453}{1649} = 1,48757 $$
+        1,49x menor (Fator)
+        $$ \frac{T_{Comprimido}}{T_{Original}} = \frac{1649}{2453} = 0,67224 $$
+        ou 67,22\% do tamanho original (Taxa)
+
+        \item \textbf{Interpretação do resultado} \\
+        O algorítmo de comprtessão LZW apresentou melhor compressão em relação ao Huffman, um resultado inesperado, mas parando para analisar, o LZW é muito bom em compressão de texto, já que cria um dicionário que muda a medida que o arquivo é analisado, por exemplo, detectando padrões em palavras/sílabas repetidas, e com esses padrões, um único código pode representar um trecho inteiro. Huffman analisa e encurta símbolos isolados com base na frequência.
+        A diferença é clara quando você compara os dois, traduz-se em 20\% de diferença na compressão.
+    \end{enumerate}
+
+    \item \textbf{Quais dificuldades surgiram ao implementar Huffman e LZW e como você resolveu?} \\
+    A implementação inicial do LZW levava em consideração um tamanho fixo pra o dicionário (12 bits), entretanto, é mais interessante da perspectiva de compactação que ele comece com um número mais baixo e cresça conforme necessidade. Implementando desta forma, saímos de um resultado que causava expansão, para um que comprime melhor que o Huffman.
+
+    A maior dificuldade da Huffman, é a questão de construir uma árvore não a partir de uma raíz, mas sim a partir de suas folhas, normalmente é o contrário em outras árvores, como a árvore binária.
+\end{enumerate}
+
+\end{document}

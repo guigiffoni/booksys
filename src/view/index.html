@@ -185,6 +185,25 @@
             font-size: 0.8rem;
             margin-left: 0.5rem;
         }
+
+        .algo-card {
+            background: #fff7ef;
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2d5c0;
+        }
+
+        .algo-card h3 {
+            margin-bottom: 1rem;
+            color: #2C1810;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .separator {
+            margin: 1rem 0;
+            border-top: 1px dashed #C4922A;
+        }
     </style>
 </head>
 
@@ -373,23 +392,49 @@
             </table>
         </section>
 
-        <!-- Seção Compactação -->
+        <!-- Seção Compactação (Huffman + LZW) -->
         <section id="compactacao">
             <h2>Compactação de Arquivos</h2>
-            <div class="form-group">
-                <label>Arquivo:</label>
-                <select id="arquivo-compactar">
-                    <option value="livros.dat">livros.dat</option>
-                    <option value="autores.dat">autores.dat</option>
-                    <option value="usuarios.dat">usuarios.dat</option>
-                    <option value="emprestimos.dat">emprestimos.dat</option>
-                </select>
+
+            <!-- Bloco Huffman -->
+            <div class="algo-card">
+                <h3>Algoritmo de Huffman</h3>
+                <div class="form-group">
+                    <label>Arquivo:</label>
+                    <select id="arquivo-compactar-huff">
+                        <option value="livros.dat">livros.dat</option>
+                        <option value="autores.dat">autores.dat</option>
+                        <option value="usuarios.dat">usuarios.dat</option>
+                        <option value="emprestimos.dat">emprestimos.dat</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" onclick="compactarHuff()">Compactar (Huffman)</button>
+                    <button class="btn-secondary" onclick="descompactarHuff()">Descompactar (Huffman)</button>
+                </div>
+                <div id="resultado-huffman" style="margin-top:1rem; font-size:13px; color:#2C1810;"></div>
             </div>
-            <div class="form-actions">
-                <button class="btn-primary" onclick="compactar()">Compactar (Huffman)</button>
-                <button class="btn-secondary" onclick="descompactar()">Descompactar</button>
+
+            <div class="separator"></div>
+
+            <!-- Bloco LZW -->
+            <div class="algo-card">
+                <h3>Algoritmo LZW</h3>
+                <div class="form-group">
+                    <label>Arquivo:</label>
+                    <select id="arquivo-compactar-lzw">
+                        <option value="livros.dat">livros.dat</option>
+                        <option value="autores.dat">autores.dat</option>
+                        <option value="usuarios.dat">usuarios.dat</option>
+                        <option value="emprestimos.dat">emprestimos.dat</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" onclick="compactarLzw()">Compactar (LZW)</button>
+                    <button class="btn-secondary" onclick="descompactarLzw()">Descompactar (LZW)</button>
+                </div>
+                <div id="resultado-lzw" style="margin-top:1rem; font-size:13px; color:#2C1810;"></div>
             </div>
-            <div id="resultado-compactacao" style="margin-top:1rem;font-size:13px"></div>
         </section>
 
         <!-- Seção Associações -->
@@ -499,7 +544,7 @@
             };
 
             function mostrarMensagem(texto, erro = false) {
-                alert(texto);
+                console.log(texto);
             }
 
             function serializeForm(form, arrayFields = []) {
@@ -647,7 +692,7 @@
                         extrator: a => {
                             const d = a.dataNascimento;
                             if (!d || d.length !== 8) return d;
-                            return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // formata a data colocada para aparecer na tabela de listagem como DD/MM/AAAA
+                            return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4);
                         }
                     },
                     { extrator: a => a.nacionalidade }
@@ -681,7 +726,7 @@
                         extrator: u => {
                             const d = u.dataNascimento;
                             if (!d || d.length !== 8) return d;
-                            return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // data formatada dd/mm/aaaa
+                            return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4);
                         }
                     },
                     { extrator: u => u.email },
@@ -723,18 +768,17 @@
                                     extrator: e => {
                                         const d = e.dataEmprestimo;
                                         if (!d || d.length !== 8) return d;
-                                        return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // data formatada dd/mm/aaaa
+                                        return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4);
                                     }
                                 },
                                 {
                                     extrator: e => {
                                         const d = e.dataDevolucao;
                                         if (!d || d.length !== 8) return d;
-                                        return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4); // data formatada dd/mm/aaaa
+                                        return d.slice(6, 8) + '/' + d.slice(4, 6) + '/' + d.slice(0, 4);
                                     }
                                 }
                             ], (emp) => {
-                                console.log('Editar clicado', emp);
                                 if (emp.devolvido) return;
                                 if (!confirm('Confirmar devolução do empréstimo #' + emp.id + '?')) return;
                                 const params = new URLSearchParams();
@@ -825,14 +869,13 @@
                     });
                 }
 
-                // Torna os campos de ID ocultos inicialmente (eles só devem aparecer quando necessário)
+                // Torna os campos de ID ocultos inicialmente
                 document.querySelectorAll('.form-group.hidden').forEach(el => el.style.display = 'none');
             });
         })();
 
         // ---------- Aba "Associações" ----------
         function carregarTabelasAssociacoes() {
-            // Carregar livros
             fetch('/livros')
                 .then(res => res.json())
                 .then(livros => {
@@ -847,7 +890,6 @@
                 `;
                         tbody.appendChild(tr);
                     });
-                    // Adicionar evento nos botões "Selecionar"
                     document.querySelectorAll('#tabela-livros-assoc .selecionar-livro').forEach(btn => {
                         btn.addEventListener('click', () => {
                             document.getElementById('assoc-livro-id').value = btn.dataset.id;
@@ -856,7 +898,6 @@
                 })
                 .catch(err => console.error('Erro ao carregar livros:', err));
 
-            // Carregar autores
             fetch('/autores')
                 .then(res => res.json())
                 .then(autores => {
@@ -880,12 +921,11 @@
                 .catch(err => console.error('Erro ao carregar autores:', err));
         }
 
-        // Associar
         document.getElementById('btn-associar')?.addEventListener('click', async () => {
             const idLivro = document.getElementById('assoc-livro-id').value;
             const idAutor = document.getElementById('assoc-autor-id').value;
             if (!idLivro || !idAutor) {
-                mostrarMensagem('Preencha ambos os IDs.', true);
+                alert('Preencha ambos os IDs.');
                 return;
             }
             try {
@@ -895,49 +935,43 @@
                     body: `idLivro=${idLivro}`
                 });
                 if (response.ok) {
-                    mostrarMensagem('Associação criada com sucesso!');
                     document.getElementById('assoc-mensagem').innerHTML = '<span style="color:green;">✓ Vinculado</span>';
                     setTimeout(() => document.getElementById('assoc-mensagem').innerHTML = '', 3000);
                 } else {
                     const erro = await response.text();
-                    mostrarMensagem('Erro: ' + erro, true);
+                    alert('Erro: ' + erro);
                 }
             } catch (err) {
-                mostrarMensagem('Erro na requisição: ' + err.message, true);
+                alert('Erro na requisição: ' + err.message);
             }
         });
 
-        // Desassociar
         document.getElementById('btn-desassociar')?.addEventListener('click', async () => {
             const idLivro = document.getElementById('assoc-livro-id').value;
             const idAutor = document.getElementById('assoc-autor-id').value;
             if (!idLivro || !idAutor) {
-                mostrarMensagem('Preencha ambos os IDs.', true);
+                alert('Preencha ambos os IDs.');
                 return;
             }
             try {
-                const response = await fetch(`/autores/${idAutor}/livros/${idLivro}`, {
-                    method: 'DELETE'
-                });
+                const response = await fetch(`/autores/${idAutor}/livros/${idLivro}`, { method: 'DELETE' });
                 if (response.ok) {
-                    mostrarMensagem('Associação removida.');
                     document.getElementById('assoc-mensagem').innerHTML = '<span style="color:red;">✗ Desvinculado</span>';
                     setTimeout(() => document.getElementById('assoc-mensagem').innerHTML = '', 3000);
                 } else {
                     const erro = await response.text();
-                    mostrarMensagem('Erro: ' + erro, true);
+                    alert('Erro: ' + erro);
                 }
             } catch (err) {
-                mostrarMensagem('Erro na requisição: ' + err.message, true);
+                alert('Erro na requisição: ' + err.message);
             }
         });
 
-        // Consultar associações
         document.getElementById('btn-consultar')?.addEventListener('click', async () => {
             const tipo = document.getElementById('consulta-tipo').value;
             const id = document.getElementById('consulta-id').value;
             if (!id) {
-                mostrarMensagem('Informe um ID.', true);
+                alert('Informe um ID.');
                 return;
             }
 
@@ -949,23 +983,18 @@
                 let dadosAssociacao = [];
 
                 if (tipo === 'livro') {
-                    // 1. Buscar o nome do livro
                     const respLivro = await fetch(`/livros/${id}`);
                     if (!respLivro.ok) throw new Error('Livro não encontrado');
                     const livro = await respLivro.json();
                     nomeEntidade = livro.titulo;
-
-                    // 2. Buscar os autores associados
                     const respAutores = await fetch(`/livros/${id}/autores`);
                     if (!respAutores.ok) throw new Error('Erro ao buscar autores');
                     dadosAssociacao = await respAutores.json();
                 } else {
-                    // tipo === 'autor'
                     const respAutor = await fetch(`/autores/${id}`);
                     if (!respAutor.ok) throw new Error('Autor não encontrado');
                     const autor = await respAutor.json();
                     nomeEntidade = autor.nome;
-
                     const respLivros = await fetch(`/autores/${id}/livros`);
                     if (!respLivros.ok) throw new Error('Erro ao buscar livros');
                     dadosAssociacao = await respLivros.json();
@@ -975,15 +1004,9 @@
                     div.innerHTML = `<p>Nenhum vínculo encontrado para ${tipo === 'livro' ? 'o livro' : 'o autor'} <strong>${nomeEntidade} (${id})</strong>.</p>`;
                 } else {
                     if (tipo === 'livro') {
-                        div.innerHTML = `
-                    <strong>Autores do livro "${nomeEntidade}" (${id}):</strong>
-                    <ul>${dadosAssociacao.map(a => `<li>${a.id} - ${a.nome}</li>`).join('')}</ul>
-                `;
+                        div.innerHTML = `<strong>Autores do livro "${nomeEntidade}" (${id}):</strong><ul>${dadosAssociacao.map(a => `<li>${a.id} - ${a.nome}</li>`).join('')}</ul>`;
                     } else {
-                        div.innerHTML = `
-                    <strong>Livros do autor "${nomeEntidade}" (${id}):</strong>
-                    <ul>${dadosAssociacao.map(l => `<li>${l.id} - ${l.titulo}</li>`).join('')}</ul>
-                `;
+                        div.innerHTML = `<strong>Livros do autor "${nomeEntidade}" (${id}):</strong><ul>${dadosAssociacao.map(l => `<li>${l.id} - ${l.titulo}</li>`).join('')}</ul>`;
                     }
                 }
             } catch (err) {
@@ -991,42 +1014,94 @@
             }
         });
 
-        // Carregar as tabelas sempre que a aba for ativada (opcional)
         document.querySelector('[data-section="associacoes"]')?.addEventListener('click', () => {
             carregarTabelasAssociacoes();
         });
-        // Também carrega na primeira vez que a página é aberta
         carregarTabelasAssociacoes();
 
-    
-         // ---------- Aba "Compactações" ----------
-        // Compactação
-        function compactar() {
-            const arquivo = document.getElementById('arquivo-compactar').value;
+        // ---------- Funções de compactação (Huffman e LZW) ----------
+        window.compactarHuff = function () {
+            const arquivo = document.getElementById('arquivo-compactar-huff').value;
             fetch('/huffman/comprimir', {
                 method: 'POST',
                 body: 'arquivo=' + arquivo
             })
-            .then(r => r.json())
-            .then(res => {
-                const div = document.getElementById('resultado-compactacao');
-                const taxa = (100 - (res.comprimido / res.original * 100)).toFixed(1);
-                div.textContent = 'Comprimido: ' + res.original + ' bytes → ' + res.comprimido + ' bytes (' + taxa + '% de redução)';
-            });
-        }
+                .then(r => r.json())
+                .then(res => {
+                    const div = document.getElementById('resultado-huffman');
+                    if (res.comprimido && res.original) {
+                        const reducao = (100 - (res.comprimido / res.original * 100)).toFixed(1);
+                        div.textContent = `✔ Comprimido: ${res.original} bytes → ${res.comprimido} bytes (${reducao}% de redução)`;
+                    } else {
+                        div.textContent = res.mensagem || 'Operação concluída.';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('resultado-huffman').textContent = '❌ Erro: ' + err.message;
+                });
+        };
 
-        // Descompactação
-        function descompactar() {
-            const arquivo = document.getElementById('arquivo-compactar').value;
+        window.descompactarHuff = function () {
+            const arquivo = document.getElementById('arquivo-compactar-huff').value;
             fetch('/huffman/descomprimir', {
                 method: 'POST',
                 body: 'arquivo=' + arquivo
             })
-            .then(r => r.json())
-            .then(res => {
-                document.getElementById('resultado-compactacao').textContent = res.mensagem;
-            });
-        }
+                .then(r => r.json())
+                .then(res => {
+                    document.getElementById('resultado-huffman').textContent = '✔ ' + (res.mensagem || 'Descompactado com sucesso.');
+                })
+                .catch(err => {
+                    document.getElementById('resultado-huffman').textContent = '❌ Erro: ' + err.message;
+                });
+        };
+
+        // LZW - usando endpoint /compactar
+        window.compactarLzw = function () {
+            const arquivo = document.getElementById('arquivo-compactar-lzw').value;
+            fetch('/compactar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `arquivo=${encodeURIComponent(arquivo)}&acao=comprimir`
+            })
+                .then(r => r.json())
+                .then(res => {
+                    const div = document.getElementById('resultado-lzw');
+                    if (res.bytes) {
+                        div.textContent = `✔ Arquivo comprimido gerado: ${res.arquivo} (${res.bytes} bytes)`;
+                    } else {
+                        div.textContent = '✔ Compressão LZW concluída.';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('resultado-lzw').textContent = '❌ Erro LZW (compressão): ' + err.message;
+                });
+        };
+
+        window.descompactarLzw = function () {
+            const arquivo = document.getElementById('arquivo-compactar-lzw').value;
+            let nomeParaDescompressao = arquivo;
+            if (!nomeParaDescompressao.endsWith('.lzw')) {
+                nomeParaDescompressao = arquivo + '.lzw';
+            }
+            fetch('/compactar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `arquivo=${encodeURIComponent(nomeParaDescompressao)}&acao=descomprimir`
+            })
+                .then(r => r.json())
+                .then(res => {
+                    const div = document.getElementById('resultado-lzw');
+                    if (res.bytes) {
+                        div.textContent = `✔ Arquivo descomprimido gerado: ${res.arquivo} (${res.bytes} bytes)`;
+                    } else {
+                        div.textContent = '✔ Descompressão LZW concluída.';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('resultado-lzw').textContent = '❌ Erro LZW (descompressão): ' + err.message;
+                });
+        };
     </script>
 </body>
 
