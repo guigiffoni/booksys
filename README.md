@@ -72,6 +72,18 @@ A interface permite realizar todas as operações de CRUD para cada entidade do 
 - **Atualizar** — modifica os dados de um registro existente
 - **Excluir** — realiza exclusão lógica (marcação com lápide `*`)
 - **Listar** — retorna todos os registros ativos
+
+### Compressão
+Há uma aba dedicada a compressão no menu com duas opções:
+- LZW
+- Huffman
+
+Seleciona-se inicialmente o arquivo fonte, como livros.dat e será possível duas operações:
+- Compressão: diminuir o tamanho do arquivo;
+- Descompressão: voltar ao arquivo original.
+
+Qualquer seja a operação, é destacado, respectivamente, o novo tamanho e o tamanho original
+
 ### Relacionamento 1:N
  
 O relacionamento Autor → Livros é implementado com **Hash Extensível**, permitindo buscar todos os livros de um determinado autor de forma eficiente.
