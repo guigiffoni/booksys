@@ -19,7 +19,7 @@ import src.model.Usuario;
 import src.util.IndiceRelacionalNN;
 import src.util.Huffman;
 import src.util.Lzw;
-import src.util.BoyerMore;
+import src.util.BoyerMoore;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -312,6 +312,10 @@ public class Main {
 
         System.out.println("Servidor rodando em http://127.0.0.1:8080/index.html");
         server.start();
+
+        // exemplo de uso do BoyceMoore
+        BoyerMoore.buscaPadrao("livros.dat", "Dom Casmurro");
+        // buscaPadrao retorna (em long) o endereço do padrão encontrado (ou não)
     }
 
     // Métodos auxiliares para conversão JSON

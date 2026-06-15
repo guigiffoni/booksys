@@ -3,7 +3,7 @@ package src.util;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class BoyerMore {
+public class BoyerMoore {
     // retorna o índice do caractere, se presente na string haystack, caso contrário: -1
     public static int indexOfChar(char caracter, String haystack) {
         for (int i = haystack.length() - 1; i >= 0; i--) {
