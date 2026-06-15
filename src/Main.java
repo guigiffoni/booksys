@@ -19,6 +19,7 @@ import src.model.Usuario;
 import src.util.IndiceRelacionalNN;
 import src.util.Huffman;
 import src.util.Lzw;
+import src.util.BoyerMore;
 
 public class Main {
     public static void main(String[] args) throws IOException {
