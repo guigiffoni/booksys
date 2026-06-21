@@ -20,6 +20,7 @@ import src.util.IndiceRelacionalNN;
 import src.util.Huffman;
 import src.util.Lzw;
 import src.util.BoyerMoore;
+import src.util.Xor;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -45,8 +46,15 @@ public class Main {
         Controller<Livro> livroController = new Controller<>(livroDao);
         Controller<Emprestimo> emprestimoController = new Controller<>(
                 "emprestimos.dat", Emprestimo::fromBytes, Emprestimo::formToInstance);
-        Controller<Usuario> usuarioController = new Controller<>(
-                "usuarios.dat", Usuario::fromBytes, Usuario::formToInstance);
+        // Controller<Usuario> usuarioController = new Controller<>(
+        //         "usuarios.dat", Usuario::fromBytes, Usuario::formToInstance);
+        
+        Dao<Usuario> usuarioDao = new Dao<>(
+            "usuarios.dat",
+            Usuario::fromBytes,
+            Usuario::formToInstance
+        );
+        Controller<Usuario> usuarioController = new Controller<>(usuarioDao);
 
         // --- Contexto unificado para /autores ---
         server.createContext("/autores", exchange -> {
@@ -302,6 +310,62 @@ public class Main {
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(respBytes);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            } finally {
+                exchange.close();
+            }
+        });
+        
+        server.createContext("/login", exchange -> {
+            if (!"POST".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+                return;
+            }
+            try {
+                String body = new String(
+                        exchange.getRequestBody().readAllBytes(),
+                        StandardCharsets.UTF_8);
+        
+                String email = null;
+                String senha = null;
+        
+                for (String par : body.split("&")) {
+                    String[] kv = par.split("=", 2);
+                    if (kv.length == 2) {
+                        switch (kv[0]) {
+                            case "email" -> email = java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                            case "senha" -> senha = java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                        }
+                    }
+                }
+        
+                Usuario encontrado = null;
+                for (Usuario u : usuarioDao.listar()) {
+                    if (u.getEmail().equalsIgnoreCase(email)) {
+                        encontrado = u;
+                        break;
+                    }
+                }
+        
+                if (encontrado == null || !encontrado.senhaCorresponde(senha)) {
+                    String erro = "{\"mensagem\":\"Credenciais inválidas\"}";
+                    byte[] bytes = erro.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                    exchange.sendResponseHeaders(401, bytes.length);
+                    exchange.getResponseBody().write(bytes);
+                    return;
+                }
+        
+                String json = String.format(
+                        "{\"mensagem\":\"ok!\",\"id\":%d,\"nome\":\"%s\",\"nivelPermissao\":%d}",
+                        encontrado.getId(), encontrado.getNome(), encontrado.getNivelPermissao());
+                byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                exchange.sendResponseHeaders(200, bytes.length);
+                exchange.getResponseBody().write(bytes);
             } catch (Exception e) {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(500, -1);

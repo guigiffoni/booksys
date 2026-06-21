@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import src.util.RequestHelper;
 import src.util.Registro;
+import src.util.Xor;
 
 public class Usuario implements Registro {
     private short id;
@@ -32,6 +33,8 @@ public class Usuario implements Registro {
         String email, 
         String senha, 
         String[] telefones) {
+            this.set(diasBloqueado);
+            this.set(nivelPermissao);
             this.setNome(nome);
             this.setDataNascimento(dataNascimento);
             this.setEmail(email);
@@ -49,6 +52,8 @@ public class Usuario implements Registro {
         String senha, 
         String[] telefones) {
             this.setId(id);
+            this.set(diasBloqueado);
+            this.set(nivelPermissao);
             this.setNome(nome);
             this.setDataNascimento(dataNascimento);
             this.setEmail(email);
@@ -131,7 +136,8 @@ public class Usuario implements Registro {
             (String) formData.get("nome"),
             (String) formData.get("dataNascimento"),
             (String) formData.get("email"),
-            (String) formData.get("senha"),
+            // (String) formData.get("senha"),
+            Xor.criptografar((String) formData.get("senha")),
             telefones
         );
     }
@@ -234,6 +240,10 @@ public class Usuario implements Registro {
         }
 
         this.senha = senha;
+    }
+    
+    public boolean senhaCorresponde(String senhaTentativa) {
+        return this.senha.equals(Xor.criptografar(senhaTentativa));
     }
 
     public String[] getTelefones() {
