@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage[a4paper, margin={3cm, 2cm}]{geometry}
+
+\title{\textbf{Fase V do Trabalho Prático de AEDs III}}
+\author{
+    Ana Luiza Ribas Ponciano \\
+    Guilherme Amaral Giffoni \\
+    João Lucas Gonçalves Teles \\
+    Lucas Medeiros Bougleux
+}
+
+\begin{document}
+
+\maketitle
+
+GitHub: https://github.com/guigiffoni/booksys \\
+Vídeo: https://www.youtube.com/watch?v=SqGf\_ShxoJw
+
+\begin{enumerate}
+    \item Qual campo textual foi escolhido para aplicar os algoritmos de casamento de padrões? Por quê? \\\\
+    O algoritmo foi implementado de forma que o padrão encontrado não esteja atrelado a apenas um campo, como nome (livro), ou ISBN. O motivo dessa escolha, foi um equívoco, na verdade, pensei a buscar seria no arquivo \textbf{inteiro}. Reconheço que isso está descrito no documento específico desta fase; Porém notei tarde demais para corrigir.
+
+    \item Explique o funcionamento do KMP implementado \\\\
+    Não foi obtida resposta.
+    
+    \item Explique o funcionamento do Boyer-Moore implementado \\\\
+    \texttt{indexOfChar} varre o padrão (o parâmetro haystack) da direita pra esquerda, se encontrar, retorna o \textbf{índice da ocorrência mais à direita} do caractere no argumento. Se não encontrar, retorna -1 \\
+    \texttt{buscaPadrao} lê o arquivo em blocos, do tamanho do padrão e em cada bloco, o seguinte acontece: \\
+    \begin{enumerate}
+        \item Compara o padrão com o bloco da direita pra esquerda
+        \item Se tiver uma diferença na posição \texttt{i} \\
+        \begin{enumerate}
+            \item Pega o caractere do texto que causou a diferença;
+            \item Procura no padrão o índice mais a direita do caractere;
+            \item Se encontrar, reposiciona o ponteiro do arquivo pra trás e lê o próximo bloco;
+            \item Se não encontrar, o algoritmo apenas lê o próximo bloco a partir da posição atual, ou seja, ignorando o bloco inteiro.
+        \end{enumerate}
+        \item Se o \texttt{for} chegar até \texttt{i == 0} sem diferenças, então o padrão é dado como \textbf{encontrado}, e retorna a posição do ponteiro do arquivo.
+    \end{enumerate}
+    \newpage
+    \item Descreva como integrou os algoritmos ao sistema. \\\\
+    Para os algoritmos de casamento de padrões, foi criada uma nova aba. Nessa nova aba, o usuário provê o texto que deseja buscar, e o padrão é procurado nos títulos de cada registro de livro; Como o BM não  O algoritmo de criptografia não foi integrado.
+
+    \item Quais dificuldades encontrou na implementação dos dois algoritmos? \\\\
+    No BM (Boyer-Moore) a principal dificuldade foi o cálculo do ``salto'' para cada caso diferente, se caractere não encontrado está no padrão, se não estiver, para ambos os casos, calcular com base nisso, a nova posição do ponteiro no arquivo; o restante foi tranquilo.
+
+    \item Qual campo foi utilizado na criptografia? \\\\
+    Não foi obtida resposta.
+
+    \item Qual foi o método utilizado na criptografia? \\\\
+    Não foi obtida resposta.
+
+\end{enumerate}
+
+\end{document}
