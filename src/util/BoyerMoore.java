@@ -52,4 +52,25 @@ public class BoyerMoore {
         raf.close();
         return filePointerPadrao;
     }
+
+    public static boolean contem(String texto, String padrao) {
+        if (padrao == null || padrao.isEmpty()) return true;
+        if (texto == null || texto.length() < padrao.length()) return false;
+
+        String t = texto.toLowerCase();
+        String p = padrao.toLowerCase();
+        int n = t.length();
+        int m = p.length();
+
+        for (int i = 0; i <= n - m; i++) {
+            int j = m - 1;
+            while (j >= 0 && t.charAt(i + j) == p.charAt(j)) {
+                j--;
+            }
+            if (j < 0) return true;
+            int salto = indexOfChar(t.charAt(i + j), p.substring(0, j));
+            i += salto == -1 ? j : j - salto - 1;
+        }
+        return false;
+    }
 }

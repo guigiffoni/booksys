@@ -208,8 +208,50 @@
 </head>
 
 <body>
+    <!-- Tela de Login -->
+    <div id="tela-login" style="position:fixed;inset:0;background:#F5F0E8;display:flex;align-items:center;justify-content:center;z-index:999">
+    <div style="background:#FDFAF5;border-radius:16px;padding:2.5rem;width:100%;max-width:400px;box-shadow:0 4px 20px rgba(44,24,16,0.2)">
+        <h2 id="login-titulo" style="font-family:'Playfair Display',serif;margin-bottom:1.5rem;border-bottom:2px solid #C4922A;padding-bottom:.5rem">BookSys</h2>
+
+        <div id="campos-cadastro" style="display:none">
+            <div class="form-group">
+                <label style="width:auto;margin-bottom:.3rem;display:block">Nome</label>
+                <input type="text" id="cad-nome" placeholder="Seu nome completo" style="width:100%">
+            </div>
+            <div class="form-group" style="margin-top:.8rem">
+                <label style="width:auto;margin-bottom:.3rem;display:block">Data Nasc. (AAAAMMDD)</label>
+                <input type="text" id="cad-data" placeholder="Ex: 20001231" style="width:100%">
+            </div>
+            <div class="form-group" style="margin-top:.8rem">
+                <label style="width:auto;margin-bottom:.3rem;display:block">Telefone</label>
+                <input type="text" id="cad-telefone" placeholder="Ex: 11999999999" style="width:100%">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:.8rem">
+            <label style="width:auto;margin-bottom:.3rem;display:block">Email</label>
+            <input type="email" id="login-email" placeholder="seu@email.com" style="width:100%">
+        </div>
+        <div class="form-group" style="margin-top:.8rem">
+            <label style="width:auto;margin-bottom:.3rem;display:block">Senha</label>
+            <input type="password" id="login-senha" placeholder="Senha" style="width:100%">
+        </div>
+
+        <div id="login-erro" style="color:#c0392b;font-size:12px;margin-top:.5rem;display:none">Email ou senha incorretos.</div>
+        <div id="cad-erro" style="color:#c0392b;font-size:12px;margin-top:.5rem;display:none"></div>
+
+        <button id="btn-acao-login" onclick="fazerLogin()" class="btn-primary" style="width:100%;margin-top:1.2rem;padding:.7rem;border-radius:20px;border:none;cursor:pointer;font-weight:bold;font-size:14px">Entrar</button>
+
+        <div style="text-align:center;margin-top:1rem;font-size:13px;color:#6B3A2A;cursor:pointer" onclick="alternarModo()">
+            <span id="texto-alternar">Não tem conta? Cadastrar</span>
+        </div>
+    </div>
+</div>
     <header>
-        <h1>BookSys</h1>
+        <div style="display:flex;justify-content:center;align-items:center;gap:1rem">
+            <h1>BookSys</h1>
+            <span id="usuario-logado" style="font-size:13px;opacity:.8"></span>
+        </div>
     </header>
     <nav>
         <button class="nav-btn active" data-section="livros">Livros</button>
@@ -218,6 +260,7 @@
         <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
         <button class="nav-btn" data-section="associacoes">Associações</button>
         <button class="nav-btn" data-section="compactacao">Compactação</button>
+        <button class="nav-btn" data-section="busca">Busca</button>
     </nav>
     <main>
         <!-- Seção Autores -->
@@ -506,6 +549,33 @@
                 <div id="resultado-associacoes"
                     style="margin-top: 1rem; background: #FDFAF5; padding: 1rem; border-radius: 8px;"></div>
             </div>
+        </section>
+
+        <!-- Seção Busca -->
+        <section id="busca">
+            <h2>Busca Textual em Livros</h2>
+            <div class="form-group">
+                <label>Padrão:</label>
+                <input type="text" id="busca-padrao" placeholder="Ex: Dom Casmurro">
+            </div>
+            <div class="form-group">
+                <label>Algoritmo:</label>
+                <select id="busca-algoritmo">
+                    <option value="kmp">KMP (Knuth-Morris-Pratt)</option>
+                    <option value="bm">Boyer-Moore</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" onclick="realizarBusca()">Buscar</button>
+                <button class="btn-secondary" onclick="limparBusca()">Limpar</button>
+            </div>
+            <div id="busca-info" style="margin:.8rem 0;font-size:13px;color:#6B3A2A"></div>
+            <table id="tabela-busca">
+                <thead>
+                    <tr><th>ID</th><th>Título</th><th>Ano</th><th>ISBN</th><th>Categorias</th><th>Qtd</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </section>
     </main>
 
@@ -1102,6 +1172,165 @@
                     document.getElementById('resultado-lzw').textContent = '❌ Erro LZW (descompressão): ' + err.message;
                 });
         };
+        // ---------- Login ----------
+        window.fazerLogin = function() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            if (!email || !senha) return;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'email=' + encodeURIComponent(email) + '&senha=' + encodeURIComponent(senha)
+            })
+            .then(r => {
+                if (r.ok) return r.json();
+                throw new Error('invalido');
+            })
+            .then(dados => {
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('usuario-logado').textContent = dados.nome;
+            })
+            .catch(() => {
+                document.getElementById('login-erro').style.display = 'block';
+            });
+        };
+
+        document.getElementById('login-email')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') fazerLogin();
+        });
+        document.getElementById('login-senha')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') fazerLogin();
+        });
+
+        // ---------- Busca ----------
+        window.realizarBusca = function() {
+            const padrao = document.getElementById('busca-padrao').value.trim();
+            const algoritmo = document.getElementById('busca-algoritmo').value;
+            if (!padrao) return;
+
+            const inicio = performance.now();
+            fetch('/busca?padrao=' + encodeURIComponent(padrao) + '&algoritmo=' + algoritmo)
+            .then(r => r.json())
+            .then(lista => {
+                const ms = (performance.now() - inicio).toFixed(1);
+                const info = document.getElementById('busca-info');
+                info.textContent = lista.length + ' resultado(s) usando ' + algoritmo.toUpperCase() + ' em ' + ms + 'ms';
+
+                const tbody = document.querySelector('#tabela-busca tbody');
+                if (!lista || lista.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6">Nenhum livro encontrado</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = lista.map(l => `
+                    <tr>
+                        <td>${l.id}</td>
+                        <td>${l.titulo}</td>
+                        <td>${l.ano_publicacao}</td>
+                        <td>${l.isbn}</td>
+                        <td>${Array.isArray(l.categorias) ? l.categorias.join(', ') : l.categorias}</td>
+                        <td>${l.quantidade}</td>
+                    </tr>
+                `).join('');
+            })
+            .catch(err => mostrarMensagem('Erro na busca: ' + err.message, true));
+        };
+
+        window.limparBusca = function() {
+            document.getElementById('busca-padrao').value = '';
+            document.getElementById('busca-info').textContent = '';
+            document.querySelector('#tabela-busca tbody').innerHTML = '';
+        };
+
+        // ---------- Login / Cadastro ----------
+        let modoLogin = true;
+
+        window.alternarModo = function() {
+            modoLogin = !modoLogin;
+            document.getElementById('campos-cadastro').style.display = modoLogin ? 'none' : 'block';
+            document.getElementById('login-titulo').textContent = modoLogin ? 'BookSys' : 'Criar conta';
+            document.getElementById('texto-alternar').textContent = modoLogin ? 'Não tem conta? Cadastrar' : 'Já tem conta? Entrar';
+            document.getElementById('btn-acao-login').textContent = modoLogin ? 'Entrar' : 'Cadastrar';
+            document.getElementById('btn-acao-login').onclick = modoLogin ? fazerLogin : fazerCadastro;
+            document.getElementById('login-erro').style.display = 'none';
+            document.getElementById('cad-erro').style.display = 'none';
+        };
+
+        window.fazerLogin = function() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            if (!email || !senha) return;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'email=' + encodeURIComponent(email) + '&senha=' + encodeURIComponent(senha)
+            })
+            .then(r => {
+                if (r.ok) return r.json();
+                throw new Error('invalido');
+            })
+            .then(dados => {
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('usuario-logado').textContent = dados.nome;
+            })
+            .catch(() => {
+                document.getElementById('login-erro').style.display = 'block';
+            });
+        };
+
+        window.fazerCadastro = function() {
+            const nome     = document.getElementById('cad-nome').value.trim();
+            const data     = document.getElementById('cad-data').value.trim();
+            const telefone = document.getElementById('cad-telefone').value.trim();
+            const email    = document.getElementById('login-email').value.trim();
+            const senha    = document.getElementById('login-senha').value.trim();
+
+            const erroDiv = document.getElementById('cad-erro');
+
+            if (!nome || !data || !telefone || !email || !senha) {
+                erroDiv.textContent = 'Preencha todos os campos.';
+                erroDiv.style.display = 'block';
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append('nome', nome);
+            params.append('dataNascimento', data);
+            params.append('telefones', telefone);
+            params.append('email', email);
+            params.append('senha', senha);
+            params.append('nivelPermissao', '0');
+
+            fetch('/usuarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+            .then(r => {
+                if (r.ok) {
+                    erroDiv.style.display = 'none';
+                    alternarModo();
+                    document.getElementById('login-email').value = email;
+                    document.getElementById('login-senha').value = senha;
+                    document.getElementById('login-erro').style.display = 'none';
+                    alert('Conta criada! Agora faça login.');
+                } else {
+                    throw new Error('Erro ao cadastrar');
+                }
+            })
+            .catch(err => {
+                erroDiv.textContent = err.message;
+                erroDiv.style.display = 'block';
+            });
+        };
+
+        document.getElementById('login-email')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') modoLogin ? fazerLogin() : fazerCadastro();
+        });
+        document.getElementById('login-senha')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') modoLogin ? fazerLogin() : fazerCadastro();
+        });
     </script>
 </body>
 

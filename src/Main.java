@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sun.net.httpserver.*;
 
@@ -20,6 +22,7 @@ import src.util.IndiceRelacionalNN;
 import src.util.Huffman;
 import src.util.Lzw;
 import src.util.BoyerMoore;
+import src.util.BuscaKMP;
 import src.util.Xor;
 
 public class Main {
@@ -374,11 +377,58 @@ public class Main {
             }
         });
 
+                // GET /casamento de padrão kmp
+        server.createContext("/busca", exchange -> {
+            if (!"GET".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+                return;
+            }
+            try {
+                String query = exchange.getRequestURI().getQuery();
+                String padrao = "";
+                String algoritmo = "kmp";
+
+                if (query != null) {
+                    for (String par : query.split("&")) {
+                        String[] kv = par.split("=", 2);
+                        if (kv.length == 2) {
+                            switch (kv[0]) {
+                                case "padrao"    -> padrao    = java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                                case "algoritmo" -> algoritmo = kv[1];
+                            }
+                        }
+                    }
+                }
+
+                List<Livro> todos = livroDao.listar();
+                List<Livro> resultado = new ArrayList<>();
+                final String padraoFinal = padrao;
+                final String algoritmoFinal = algoritmo;
+
+                for (Livro l : todos) {
+                    boolean achou = algoritmoFinal.equals("bm")
+                        ? BoyerMoore.contem(l.getTitulo(), padraoFinal)
+                        : BuscaKMP.contem(l.getTitulo(), padraoFinal);
+                    if (achou) resultado.add(l);
+                }
+
+                String json = livrosToJson(resultado);
+                byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                exchange.sendResponseHeaders(200, bytes.length);
+                exchange.getResponseBody().write(bytes);
+            } catch (Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            } finally {
+                exchange.close();
+            }
+        });
+
         System.out.println("Servidor rodando em http://127.0.0.1:8080/index.html");
         server.start();
-
-        // exemplo de uso do BoyceMoore
-        BoyerMoore.buscaPadrao("livros.dat", "Dom Casmurro");
+        
         // buscaPadrao retorna (em long) o endereço do padrão encontrado (ou não)
     }
 
